@@ -1,5 +1,5 @@
-#ifndef FONTRENDERERAPP_H
-#define FONTRENDERERAPP_H
+#ifndef GEOARCADERAPP_H
+#define GEOARCADERAPP_H
 
 #include <Engine.h>
 #include <Engine/Core/EntryPoint.h>
@@ -15,4 +15,4 @@ private:
 
 };
 
-#endif // !FONTRENDERERAPP_H
+#endif // !GEOARCADERAPP_H

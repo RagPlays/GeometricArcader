@@ -9,20 +9,14 @@
 #include "Engine/Core/LayerContainer.h"
 #include "Engine/Events/ApplicationEvent.h"
 
-#include "Platform/OpenGL/OpenGLShader.h"
-
 int main(int argc, char** argv);
 
 namespace Engine
 {
-	class Camera;
-	class Shader;
-	class Window;
-	class ImGuiLayer;
 
-	class VertexArray;
-	class VertexBuffer;
-	class IndexBuffer;
+#if ENGINE_IMGUI
+	class ImGuiLayer;
+#endif
 
 	struct ApplicationCommandLineArgs
 	{

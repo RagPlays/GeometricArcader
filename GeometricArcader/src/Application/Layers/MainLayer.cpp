@@ -1,26 +1,32 @@
 ﻿#include "MainLayer.h"
 
-#include "FlyFish.h"
+using namespace Engine;
 
 MainLayer::MainLayer()
 	: Layer{ "MainLayer" }
+	, m_Camera{}
+	, m_Game{}
 {
-	ENGINE_INFO("MainLayer created");
 }
 
 MainLayer::~MainLayer()
-{
-	TriVector testTriVector{};
-}
-
-void MainLayer::OnAttach()
 {
 }
 
 void MainLayer::OnUpdate()
 {
-	Update();
-	Render();
+	const FrameTimer& timer{ FrameTimer::Get() };
+	m_Game.Update(timer.GetSeconds());
+
+	Renderer2D::ResetStats();
+	RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.f });
+	RenderCommand::Clear();
+
+	Renderer2D::BeginScene(m_Camera.GetCamera());
+	{
+		m_Game.Render();
+	}
+	Renderer2D::EndScene();
 }
 
 void MainLayer::OnImGuiRender()
@@ -29,12 +35,5 @@ void MainLayer::OnImGuiRender()
 
 void MainLayer::OnEvent(Engine::Event& e)
 {
-}
-
-void MainLayer::Update()
-{
-}
-
-void MainLayer::Render() const
-{
+	m_Camera.OnEvent(e);
 }

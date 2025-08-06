@@ -110,7 +110,7 @@ namespace Engine
 		// -------------- BASICS ----------------//
 		glm::vec4 drawColor{ 1.f, 1.f, 1.f, 1.f };
 		float pointSize{ 5.f };
-		float lineWidth{ 2.f };
+		float lineWidth{ 1.f };
 
 		// -------------- POINTS ----------------//
 		Ref<VertexArray> pointVertexArray{ nullptr };
@@ -170,7 +170,6 @@ namespace Engine
 
 		// -------------- BASICS ----------------//
 		s_Data.drawColor = Color::white;
-		s_Data.lineWidth = 2.f;
 
 		// -------------- POINTS ----------------//
 		s_Data.pointVertexArray = VertexArray::Create();
@@ -255,8 +254,16 @@ namespace Engine
 
 	void Renderer2D::BeginScene(const glm::mat4& viewProjectionMatrix)
 	{
-		SetShadersViewProjection(viewProjectionMatrix);
+#ifdef ENGINE_DEBUG
+		if(s_Data.pointVertexCount > 0 || s_Data.lineVertexCount > 0 ||
+		   s_Data.quadIndexCount > 0 || s_Data.circleIndexCount > 0)
+		{
+			ENGINE_CORE_ERROR("Renderer2D::BeginScene called without EndScene. Flushing previous scene.");
+			EndScene();
+		}
+#endif
 
+		SetShadersViewProjection(viewProjectionMatrix);
 		ResetAllBatches();
 	}
 
@@ -265,6 +272,7 @@ namespace Engine
 		ENGINE_PROFILE_FUNCTION();
 
 		FlushAll();
+		ResetAllBatches();
 	}
 
 	const glm::vec4& Renderer2D::GetDrawColor()
