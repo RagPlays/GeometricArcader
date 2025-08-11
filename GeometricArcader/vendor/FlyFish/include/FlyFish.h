@@ -592,7 +592,7 @@ public:
         data[3] = 1;
     }
 
-    [[nodiscard]] TriVector(float e032, float e013, float e021, float e123) : GAElement()
+    [[nodiscard]] TriVector(float e032 /*x*/, float e013 /*y*/, float e021 /*z*/, float e123 /*euclidean*/) : GAElement()
     {
         data[0] = e032;
         data[1] = e013;

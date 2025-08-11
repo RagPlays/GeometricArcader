@@ -14,6 +14,7 @@ if(NOT GEOA_SOURCES)
 endif()
 
 add_executable("GeometricArcader" ${GEOA_SOURCES})
+set_target_properties(GeometricArcader PROPERTIES OUTPUT_NAME "GeometricArcader")
 
 target_include_directories(GeometricArcader PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src

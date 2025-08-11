@@ -2,7 +2,8 @@
 #define GAME_H
 
 #include <Engine.h>
-#include "FlyFish.h"
+
+#include "Entities/Player.h"
 
 class Game final
 {
@@ -16,13 +17,21 @@ public:
 	Game& operator=(const Game&) = delete;
 	Game& operator=(Game&&) noexcept = delete;
 
+	void OnEvent(Engine::Event& e);
+
 	void Update(float deltaTime);
 	void Render() const;
 
 private:
 
+	void DrawAxes() const;
+	void DrawLineTest() const;
+
+private:
+
 	const Engine::Window& m_Window;
-	TriVector m_BladePosition;
+	Player m_Player;
+	
 };
 
 #endif // !GAME_H

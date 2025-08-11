@@ -30,12 +30,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # For MSVC users, enable UTF-8 source encoding so spdlog’s fmt bundle is happy
 if (MSVC)
   add_compile_options(/utf-8)
+  add_compile_options(/MP)
 endif()
 
 # Engine library
 add_subdirectory(Engine)
 
 # Executables
-add_subdirectory(Sandbox)
 add_subdirectory(GeometricArcader)
+add_subdirectory(Sandbox)
 add_subdirectory(CustomFontRenderer)
