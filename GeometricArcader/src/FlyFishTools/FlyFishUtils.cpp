@@ -4,9 +4,13 @@
 
 #include "FlyFish.h"
 
-const BiVector FlyFishUtils::xAxis{ BiVector{ 1, 0, 0, 0, 0, 0 } };
-const BiVector FlyFishUtils::yAxis{ BiVector{ 0, 1, 0, 0, 0, 0 } };
-const BiVector FlyFishUtils::zAxis{ BiVector{ 0, 0, 1, 0, 0, 0 } };
+const Vector FlyFishUtils::e1Gen{ 0.f, 1.f, 0.f, 0.f };
+const Vector FlyFishUtils::e2Gen{ 0.f, 0.f, 1.f, 0.f };
+const Vector FlyFishUtils::e3Gen{ 0.f, 0.f, 0.f, 1.f };
+
+const BiVector FlyFishUtils::xAxis{ BiVector{ 0, 0, 0, 1, 0, 0 } };
+const BiVector FlyFishUtils::yAxis{ BiVector{ 0, 0, 0, 0, 1, 0 } };
+const BiVector FlyFishUtils::zAxis{ BiVector{ 0, 0, 0, 0, 0, 1 } };
 
 void FlyFishUtils::DrawLine(const BiVector& bv, float length)
 {
@@ -18,7 +22,7 @@ void FlyFishUtils::DrawLine(const BiVector& bv, float length)
 
 	// Get one point on the line
 	glm::vec3 p0 = glm::cross(d, m);
-	float denom = glm::dot(d, d);
+	const float denom{ glm::dot(d, d) };
 	p0.x /= denom; p0.y /= denom; p0.z /= denom;
 
 	// Normalize direction
@@ -45,12 +49,12 @@ void FlyFishUtils::DrawLine(const BiVector& bv, float length)
 	Engine::Renderer2D::DrawLine(p1, p2);
 }
 
-//void FlyFishUtils::DrawLine(const TriVector& tv1, const TriVector& tv2)
-//{
-//	const glm::vec3 p1{ tv1[0], tv1[1], tv1[2] };
-//	const glm::vec3 p2{ tv2[0], tv2[1], tv2[2] };
-//	Engine::Renderer2D::DrawLine(p1, p2);
-//}
+void FlyFishUtils::DrawLine(const TriVector& tv1, const TriVector& tv2)
+{
+	const glm::vec3 p1{ tv1[0], tv1[1], tv1[2] };
+	const glm::vec3 p2{ tv2[0], tv2[1], tv2[2] };
+	Engine::Renderer2D::DrawLine(p1, p2);
+}
 
 void FlyFishUtils::DrawRect(const TriVector& tv, float width, float height)
 {
@@ -76,4 +80,17 @@ void FlyFishUtils::DrawFillRect(const TriVector& tv, float width, float height)
 void FlyFishUtils::DrawFillRect(const TriVector& tv, const glm::vec2& size)
 {
 	DrawFillRect(tv, size.x, size.y);
+}
+
+// returns signed distance from TriVector point to Vector plane.
+// Positive means point lies in direction of plane normal.
+// Assumes TriVector::Norm() returns the homogeneous weight (e123).
+float FlyFishUtils::SignedDistanceToPlane(const Vector& plane, const TriVector& pt)
+{
+	// raw homogeneous inner product (a*x + b*y + c*z + d*w)
+	const float raw = plane & pt;      // uses your operator& overload
+	const float pn = plane.Norm();   // sqrt(a^2 + b^2 + c^2)
+	const float pw = pt.Norm();      // homogeneous weight (usually 1)
+	if (pn == 0.0f || pw == 0.0f) return 0.0f; // guard against degenerate inputs
+	return raw / (pn * pw);
 }

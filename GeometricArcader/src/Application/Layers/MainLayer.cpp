@@ -6,8 +6,10 @@ using namespace Engine;
 
 MainLayer::MainLayer()
 	: Layer{ "MainLayer" }
+	, m_Window{ Application::Get().GetWindow() }
 	, m_Camera{}
 	, m_Game{}
+	, m_ShowImgui{}
 {
 }
 
@@ -48,13 +50,31 @@ void MainLayer::OnImGuiRender()
 		nrOfFrames = 0;
 	}
 
-	ImGui::Begin("RendererStats", nullptr);
+	if (!m_ShowImgui) return;
+
+	const ImGuiViewport* const mainViewport{ ImGui::GetMainViewport() };
+	ImGui::SetNextWindowPos(ImVec2{ mainViewport->Pos.x + 10.f, mainViewport->Pos.y + 10.f }, ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(300.f, 330.f), ImGuiCond_Always);
+	ImGui::SetNextWindowViewport(mainViewport->ID);
+
+	const auto flags
 	{
+		ImGuiWindowFlags_NoMove |		// Prevent moving
+		ImGuiWindowFlags_NoResize |		// Prevent resizing
+		ImGuiWindowFlags_NoCollapse |	// Prevent collapsing
+		ImGuiWindowFlags_NoTitleBar		// Remove title bar if you want
+	};
+
+	ImGui::Begin("RendererStats", nullptr, flags);
+	{
+		const auto& stats{ Renderer2D::GetStats() };
+
 		ImGui::SetWindowFontScale(imGuiFontScale);
 		ImGui::Text("General Stats:");
 		ImGui::Text("FPS: %f", lastFPS);
 
-		const auto& stats{ Renderer2D::GetStats() };
+		ImGui::Spacing();
+
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %d", stats.drawCalls);
 		ImGui::Text("Point Count: %d", stats.pointCount);
@@ -69,6 +89,22 @@ void MainLayer::OnImGuiRender()
 
 void MainLayer::OnEvent(Engine::Event& e)
 {
+	EventDispatcher dispatcher{ e };
+	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(OnKeyReleased));
+
 	m_Camera.OnEvent(e);
 	m_Game.OnEvent(e);
+}
+
+bool MainLayer::OnKeyReleased(KeyReleasedEvent& e)
+{
+	const bool iPressedThisFrame{ e.GetKeyCode() == Key::I };
+	const bool ctrlPressed{ Input::IsKeyPressed(Key::LeftControl) };
+
+	if (iPressedThisFrame && ctrlPressed)
+	{
+		m_ShowImgui = !m_ShowImgui;
+	}
+
+	return false;
 }

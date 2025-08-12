@@ -22,6 +22,10 @@ public:
 	void Update(float deltaTime);
 	void Render() const;
 
+	// Getters //
+	const TriVector& GetPosition() const { return m_Position; }
+	const glm::vec2& GetSize() const { return m_Size; }
+
 private:
 
 	bool OnKeyReleased(Engine::KeyReleasedEvent& event);

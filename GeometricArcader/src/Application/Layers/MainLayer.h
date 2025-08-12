@@ -19,9 +19,16 @@ public:
 	virtual void OnEvent(Engine::Event& e) override;
 
 private:
+
+	bool OnKeyReleased(Engine::KeyReleasedEvent& event);
+
+private:
 	
+	const Engine::Window& m_Window;
 	DefaultCamera m_Camera;
 	Game m_Game;
+
+	bool m_ShowImgui;
 };
 
 #endif // !MAINLAYER_H
