@@ -28,6 +28,11 @@ void Game::Render() const
 	DrawCollisionLines();
 }
 
+void Game::TestMeetJoin()
+{
+	BiVector bivector{ FlyFishUtils::e3Gen ^ FlyFishUtils::e1Gen };
+}
+
 void Game::DrawAxes() const
 {
 	const float windowWidth{ static_cast<float>(m_Window.GetWidth()) };
@@ -99,6 +104,7 @@ void Game::DrawCollisionLines() const
 		FlyFishUtils::SignedDistanceToPlane(topBoundPlane, playerPos) < playerHalfSize.y
 		)
 	{
+		// Collision detected, render a debug circle
 		Renderer2D::SetDrawColor(Color::darkGray);
 		Renderer2D::DrawFilledCircle(Circle3f{ glm::vec3{ 0.f, 0.f, -1.f }, 50.f });
 	}

@@ -28,6 +28,9 @@ public:
 
 private:
 
+	void UpdateMovement(float deltaTime);
+	void UpdateCollision();
+
 	bool OnKeyReleased(Engine::KeyReleasedEvent& event);
 
 private:
