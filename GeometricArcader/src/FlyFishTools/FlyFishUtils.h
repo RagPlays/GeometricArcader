@@ -27,18 +27,24 @@ public:
     static const BiVector yAxis;
     static const BiVector zAxis;
 
+    // General Helpers //
+    static bool IsVerticalPlane(const Vector& plane);
+    static bool IsHorzontalPlane(const Vector& plane);
+
     // Calculations //
     static float SignedDistanceToPlane(const Vector& plane, const TriVector& point);
 
-    // Projections Proj(x)m = (x | m) * ~m -> "(x dot m) gep inverse(m)"
+    // Projections Proj(x)m = (x | m) * ~m -> (x dot m) gep inverse(m)
 	static Vector Projection(const Vector& plane, const Vector& referencePlane);
 	static BiVector Projection(const BiVector& line, const Vector& referencePlane);
 	static TriVector Projection(const TriVector& point, const Vector& referencePlane);
 
-	// Rejections Rej(x)m = (x ^ m) * ~m -> "(x meet m) gep inverse(m)"
-    /*static Vector Rejection(const Vector& plane, const Vector& referencePlane);
+	// Rejections Rej(x)m = (x ^ m) * ~m -> (x meet m) gep inverse(m)
+    // Plane = Proj(plane, referencePlane) + Rej(plane, referencePlane)
+    // Rej(plane, referencePlane) = plane - Proj(plane, referencePlane)
+    static Vector Rejection(const Vector& plane, const Vector& referencePlane);
     static BiVector Rejection(const BiVector& line, const Vector& referencePlane);
-    static TriVector Rejection(const TriVector& point, const Vector& referencePlane);*/
+    static TriVector Rejection(const TriVector& point, const Vector& referencePlane);
 
 
     // Rendering //

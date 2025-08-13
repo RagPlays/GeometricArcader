@@ -5,6 +5,8 @@
 
 #include "FlyFish.h"
 
+class BorderCollision;
+
 class Player final
 {
 public:
@@ -19,17 +21,17 @@ public:
 
 	void OnEvent(Engine::Event& e);
 
-	void Update(float deltaTime);
+	void Update(const BorderCollision& coll, float deltaTime);
 	void Render() const;
 
 	// Getters //
-	const TriVector& GetPosition() const { return m_Position; }
-	const glm::vec2& GetSize() const { return m_Size; }
+	const TriVector& GetPosition() const;
+	const glm::vec2& GetSize() const;
 
 private:
 
 	void UpdateMovement(float deltaTime);
-	void UpdateCollision();
+	void UpdateCollision(const BorderCollision& coll);
 
 	bool OnKeyReleased(Engine::KeyReleasedEvent& event);
 

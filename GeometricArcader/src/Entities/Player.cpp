@@ -1,12 +1,13 @@
 #include "Player.h"
 
 #include "FlyFishTools/FlyFishUtils.h"
+#include "Collision/BorderCollision.h"
 
 using namespace Engine;
 
 Player::Player()
 	: m_Position{ 0.f, 0.f, 0.f }
-	, m_Size{ 50.f, 50.f }
+	, m_Size{ 50.f, 200.f }
 {
 }
 
@@ -16,9 +17,10 @@ void Player::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(OnKeyReleased));
 }
 
-void Player::Update(float deltaTime)
+void Player::Update(const BorderCollision& coll, float deltaTime)
 {
 	UpdateMovement(deltaTime);
+	UpdateCollision(coll);
 }
 
 void Player::Render() const
@@ -29,10 +31,21 @@ void Player::Render() const
 	FlyFishUtils::DrawRect(m_Position, m_Size);
 }
 
+// Getters //
+const TriVector& Player::GetPosition() const
+{
+	return m_Position;
+}
+
+const glm::vec2& Player::GetSize() const
+{
+	return m_Size;
+}
+
 void Player::UpdateMovement(float deltaTime)
 {
-	constexpr float baseMoveSpeed{ 500.f };
-	bool sprinting{ Input::IsKeyPressed(Key::LeftShift) };
+	constexpr float baseMoveSpeed{ 3000.f };
+	const bool sprinting{ Input::IsKeyPressed(Key::LeftShift) };
 	const float moveSpeed{ sprinting ? baseMoveSpeed * 2.f : baseMoveSpeed };
 	const float deltaSpeed{ moveSpeed * deltaTime };
 
@@ -65,8 +78,9 @@ void Player::UpdateMovement(float deltaTime)
 	}
 }
 
-void Player::UpdateCollision()
+void Player::UpdateCollision(const BorderCollision& coll)
 {
+	coll.HandleCollision(m_Position, m_Size);
 }
 
 bool Player::OnKeyReleased(KeyReleasedEvent& e)

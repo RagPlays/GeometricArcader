@@ -34,25 +34,54 @@ void BorderCollision::Render() const
 
 	for (const auto& plane : m_BorderPlanes)
 	{
-		bool isHorizontal{ plane.e1() == 0.f && plane.e2() != 0.f };
-
+		const bool horizontalPlane{ FlyFishUtils::IsHorzontalPlane(plane) };
 		const BiVector line{ plane ^ FlyFishUtils::e3Gen };
-		FlyFishUtils::DrawLine(line, (isHorizontal ? m_OffsetX : m_OffsetY) * 2.f);
+		FlyFishUtils::DrawLine(line, (horizontalPlane ? m_OffsetX : m_OffsetY) * 2.f);
 	}
 }
 
-bool BorderCollision::IsPlayerColliding(const Player& player) const
+void BorderCollision::HandleCollision(TriVector& entityPos, const glm::vec2& entitySize) const
 {
-	const TriVector& pos{ player.GetPosition() };
-	const glm::vec2& entitySize{ player.GetSize() };
+	const glm::vec2 halfSize{ entitySize * 0.5f };
+
+	if (auto collData{ IsColliding(entityPos, entitySize) }; collData.HasCollision)
+	{
+		const Vector& collPlane{ *collData.CollidedPlane };
+		const bool horizontalPlane{ FlyFishUtils::IsHorzontalPlane(collPlane) };
+		const float offsetDist{ horizontalPlane ? halfSize.y : halfSize.x };
+
+		// Projected position on the collision plane
+		const TriVector projectedPos{ FlyFishUtils::Projection(entityPos, collPlane) };
+
+		// Create translation line
+		const BiVector normalLine{ collPlane.e1(), collPlane.e2(), collPlane.e3(), 0.f, 0.f, 0.f};
+
+		// Build the translation motor
+		const Motor translateMotor{ Motor::Translation(offsetDist, normalLine) };
+
+		// Translate the entity position using the motor
+		entityPos = MultiVector{ translateMotor * projectedPos * ~translateMotor }.Grade3();
+
+		// Recusively check for further collisions
+		HandleCollision(entityPos, entitySize);
+	}
+}
+
+BorderCollisionData BorderCollision::IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const
+{
 	const glm::vec2 halfSize{ entitySize * 0.5f };
 
 	for (const auto& plane : m_BorderPlanes)
 	{
-		if (FlyFishUtils::SignedDistanceToPlane(plane, pos) < halfSize.x) return true;
+		const bool horizontalPlane{ FlyFishUtils::IsHorzontalPlane(plane) };
+		const float offsetDistance{ horizontalPlane ? halfSize.y : halfSize.x };
+		if (float signedDistance{ FlyFishUtils::SignedDistanceToPlane(plane, entityPoint) }; signedDistance < offsetDistance)
+		{
+			return BorderCollisionData{ true, signedDistance, &plane };
+		}
 	}
 
-	return false;
+	return BorderCollisionData{};
 }
 
 void BorderCollision::UpdateBorderPlanes(uint32_t windowWidth, uint32_t windowHeight)

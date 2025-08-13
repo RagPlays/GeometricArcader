@@ -13,6 +13,24 @@ const BiVector FlyFishUtils::xAxis{ BiVector{ 0.f, 0.f, 0.f, 1.f, 0.f, 0.f } };
 const BiVector FlyFishUtils::yAxis{ BiVector{ 0.f, 0.f, 0.f, 0.f, 1.f, 0.f } };
 const BiVector FlyFishUtils::zAxis{ BiVector{ 0.f, 0.f, 0.f, 0.f, 0.f, 1.f } };
 
+// General Helpers //
+
+// Checks if the plane is vertical, meaning it has a non-zero e1 component and zero e2 and e3 components.
+bool FlyFishUtils::IsVerticalPlane(const Vector& plane)
+{
+	constexpr float epsilon{ 1e-6f };
+	// Plane should be close to 1*e1 + 0*e2 + 0*e3
+	return (std::fabs(plane.e1()) > epsilon && std::fabs(plane.e2()) < epsilon && std::fabs(plane.e3()) < epsilon);
+}
+
+// Checks if the plane is vertical, meaning it has a non-zero e2 component and zero e1 and e3 components.
+bool FlyFishUtils::IsHorzontalPlane(const Vector& plane)
+{
+	constexpr float epsilon{ 1e-6f };
+	// Plane should be close to 0*e1 + 1*e2 + 0*e3
+	return (std::fabs(plane.e1()) < epsilon && std::fabs(plane.e2()) > epsilon && std::fabs(plane.e3()) < epsilon);
+}
+
 // Calculations //
 
 // returns signed distance from TriVector point to Vector plane.
@@ -44,19 +62,20 @@ TriVector FlyFishUtils::Projection(const TriVector& point, const Vector& referen
 	return ((point | referencePlane) * ~referencePlane).Grade3();
 }
 
-//Vector FlyFishUtils::Rejection(const Vector& plane, const Vector& referencePlane)
-//{
-//	
-//}
-//
-//BiVector FlyFishUtils::Rejection(const BiVector& line, const Vector& referencePlane)
-//{
-//}
-//
-//TriVector FlyFishUtils::Rejection(const TriVector& point, const Vector& referencePlane)
-//{
-//	//auto meet = (point ^ referencePlane) * ~referencePlane; // this is a plane??
-//}
+Vector FlyFishUtils::Rejection(const Vector& plane, const Vector& referencePlane)
+{
+	return (plane - Projection(plane, referencePlane));
+}
+
+BiVector FlyFishUtils::Rejection(const BiVector& line, const Vector& referencePlane)
+{
+	return (line - Projection(line, referencePlane));
+}
+
+TriVector FlyFishUtils::Rejection(const TriVector& point, const Vector& referencePlane)
+{
+	return (point - Projection(point, referencePlane));
+}
 
 // Rendering //
 void FlyFishUtils::DrawPoint(const TriVector& point)

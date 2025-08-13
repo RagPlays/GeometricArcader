@@ -19,12 +19,7 @@ void Game::OnEvent(Event& e)
 
 void Game::Update(float deltaTime)
 {
-	m_Player.Update(deltaTime);
-
-	if(m_BorderCollision.IsPlayerColliding(m_Player))
-	{
-		ENGINE_TRACE("Player is colliding with the border!");
-	}
+	m_Player.Update(m_BorderCollision, deltaTime);
 }
 
 void Game::Render() const

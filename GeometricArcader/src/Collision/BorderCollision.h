@@ -5,7 +5,13 @@
 
 #include "FlyFish.h"
 
-class Player;
+
+struct BorderCollisionData
+{
+	const bool HasCollision{ false };
+	const float SignedDistance{ 0.f }; // Signed distance to the plane
+	const Vector* const CollidedPlane{ nullptr }; // Pointer to the plane that caused the collision
+};
 
 class BorderCollision final
 {
@@ -23,7 +29,8 @@ public:
 
 	void Render() const;
 
-	bool IsPlayerColliding(const Player& player) const;
+	void HandleCollision(TriVector& entityPos, const glm::vec2& entitySize) const;
+	BorderCollisionData IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const;
 
 private:
 
