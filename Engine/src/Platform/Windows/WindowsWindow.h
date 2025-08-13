@@ -44,8 +44,8 @@ namespace Engine
 		struct WindowData
 		{
 			std::string title;
-			unsigned int width;
-			unsigned int height;
+			uint32_t width;
+			uint32_t height;
 			bool vSync;
 
 			EventCallbackFn eventCallback;

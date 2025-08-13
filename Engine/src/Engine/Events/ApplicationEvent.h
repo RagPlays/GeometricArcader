@@ -11,17 +11,17 @@ namespace Engine
 	{
 	public:
 
-		WindowResizeEvent(unsigned int width, unsigned int height)
+		WindowResizeEvent(uint32_t width, uint32_t height)
 			: m_Width{ width }, m_Height{ height }
 		{
 		}
 
-		unsigned int GetWidth() const
+		uint32_t GetWidth() const
 		{
 			return m_Width;
 		}
 
-		unsigned int GetHeight() const
+		uint32_t GetHeight() const
 		{
 			return m_Height;
 		}
@@ -38,8 +38,8 @@ namespace Engine
 
 	private:
 
-		unsigned int m_Width;
-		unsigned int m_Height;
+		uint32_t m_Width;
+		uint32_t m_Height;
 
 	};
 

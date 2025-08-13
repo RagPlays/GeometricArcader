@@ -25,11 +25,7 @@ public:
 
 private:
 
-	void TestMeetJoin();
-
 	void DrawAxes() const;
-	void DrawLineTest() const;
-	void DrawCollisionLines() const;
 
 private:
 

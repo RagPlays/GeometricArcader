@@ -110,7 +110,6 @@ bool MainLayer::OnWindowResized(WindowResizeEvent& event)
 	{
 		m_Window.SetWindowSize(std::max(width, m_MinWidth), std::max(height, m_MinHeight));
 	}
-
 	return false;
 }
 

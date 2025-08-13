@@ -161,10 +161,10 @@ namespace Engine
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
         {
             WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
-            data.width = width;
-            data.height = height;
+            data.width = static_cast<uint32_t>(width);
+            data.height = static_cast<uint32_t>(height);
 
-            WindowResizeEvent event{ static_cast<unsigned int>(width), static_cast<unsigned int>(height) };
+            WindowResizeEvent event{ data.width, data.height };
             data.eventCallback(event);
         });
 
