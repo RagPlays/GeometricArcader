@@ -56,6 +56,13 @@ namespace Engine
         return m_Data.height;
     }
 
+    void WindowsWindow::SetWindowSize(uint32_t width, uint32_t height)
+    {
+        m_Data.width = width;
+        m_Data.height = height;
+        glfwSetWindowSize(m_Window, static_cast<int>(width), static_cast<int>(height));
+    }
+
     void WindowsWindow::SetEventCallback(const EventCallbackFn& callback)
     {
         m_Data.eventCallback = callback;

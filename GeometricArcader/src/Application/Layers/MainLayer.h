@@ -20,11 +20,16 @@ public:
 
 private:
 
+	// Window Events //
+	bool OnWindowResized(Engine::WindowResizeEvent& event);
 	bool OnKeyReleased(Engine::KeyReleasedEvent& event);
 
 private:
 	
-	const Engine::Window& m_Window;
+	Engine::Window& m_Window;
+	const unsigned int m_MinWidth;
+	const unsigned int m_MinHeight;
+
 	DefaultCamera m_Camera;
 	Game m_Game;
 

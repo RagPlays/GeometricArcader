@@ -19,9 +19,9 @@ const BiVector FlyFishUtils::zAxis{ BiVector{ 0.f, 0.f, 0.f, 0.f, 0.f, 1.f } };
 // Positive means point lies in direction of plane normal.
 float FlyFishUtils::SignedDistanceToPlane(const Vector& plane, const TriVector& point)
 {
-	const float join{ plane & point };	// Join
-	const float pn{ plane.Norm() };		// sqrt(a^2 + b^2 + c^2)
-	const float pw{ point.Norm() };      // Scaler of e123 (usually 1.0f)
+	const float join{ plane & point };		// Join
+	const float pn{ plane.Norm() };			// sqrt(a^2 + b^2 + c^2)
+	const float pw{ point.Norm() };			// Scaler of e123 (usually 1.0f)
 	if (pn == 0.0f || pw == 0.0f) return 0.0f; // guard against degenerate inputs
 	
 	const float normProduct{ pn * pw };

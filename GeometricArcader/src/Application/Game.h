@@ -4,6 +4,7 @@
 #include <Engine.h>
 
 #include "Entities/Player.h"
+#include "Collision/BorderCollision.h"
 
 class Game final
 {
@@ -32,7 +33,8 @@ private:
 
 private:
 
-	const Engine::Window& m_Window;
+	Engine::Window& m_Window;
+	BorderCollision m_BorderCollision;
 	Player m_Player;
 	
 };

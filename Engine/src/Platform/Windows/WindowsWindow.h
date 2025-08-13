@@ -22,6 +22,7 @@ namespace Engine
 
 		virtual uint32_t GetWidth() const override;
 		virtual uint32_t GetHeight() const override;
+		virtual void SetWindowSize(uint32_t width, uint32_t height) override;
 
 		virtual void SetEventCallback(const EventCallbackFn& callback) override;
 		virtual void SetVSync(bool enabled) override;

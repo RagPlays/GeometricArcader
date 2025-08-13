@@ -7,6 +7,8 @@ using namespace Engine;
 MainLayer::MainLayer()
 	: Layer{ "MainLayer" }
 	, m_Window{ Application::Get().GetWindow() }
+	, m_MinWidth{ 500 }
+	, m_MinHeight{ 500 }
 	, m_Camera{}
 	, m_Game{}
 	, m_ShowImgui{}
@@ -87,13 +89,29 @@ void MainLayer::OnImGuiRender()
 	ImGui::End();
 }
 
-void MainLayer::OnEvent(Engine::Event& e)
+void MainLayer::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher{ e };
-	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(OnKeyReleased));
+	dispatcher.Dispatch<WindowResizeEvent>(ENGINE_BIND_EVENT_FN(MainLayer::OnWindowResized));
+	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(MainLayer::OnKeyReleased));
 
 	m_Camera.OnEvent(e);
 	m_Game.OnEvent(e);
+}
+
+bool MainLayer::OnWindowResized(WindowResizeEvent& event)
+{
+	const unsigned int width{ event.GetWidth() };
+	const unsigned int height{ event.GetHeight() };
+
+	if (width == 0 && height == 0) return false; // Window Is Minimized
+
+	if (width < m_MinWidth || height < m_MinHeight)
+	{
+		m_Window.SetWindowSize(std::max(width, m_MinWidth), std::max(height, m_MinHeight));
+	}
+
+	return false;
 }
 
 bool MainLayer::OnKeyReleased(KeyReleasedEvent& e)

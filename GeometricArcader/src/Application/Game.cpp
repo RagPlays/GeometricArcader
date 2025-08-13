@@ -6,12 +6,14 @@ using namespace Engine;
 
 Game::Game()
 	: m_Window{ Application::Get().GetWindow() }
+	, m_BorderCollision{ 100.f }
 	, m_Player{}
 {
 }
 
 void Game::OnEvent(Engine::Event& e)
 {
+	m_BorderCollision.OnEvent(e);
 	m_Player.OnEvent(e);
 }
 

@@ -1,7 +1,8 @@
 #ifndef BORDERCOLLISION_H
 #define BORDERCOLLISION_H
 
-#include <array>
+#include <Engine.h>
+
 #include "FlyFish.h"
 
 class BorderCollision final
@@ -16,8 +17,15 @@ public:
 	BorderCollision& operator=(const BorderCollision&) = delete;
 	BorderCollision& operator=(BorderCollision&&) noexcept = delete;
 
+	void OnEvent(Engine::Event& e);
+
 private:
 
+	bool OnWindowResized(Engine::WindowResizeEvent& e);
+
+private:
+
+	const float m_borderOffset;
 	std::array<Vector, 4> m_BorderPlanes; // Planes for each border (left, right, top, bottom)
 
 };
