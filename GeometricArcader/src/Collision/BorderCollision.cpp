@@ -1,7 +1,6 @@
 #include "BorderCollision.h"
 
 #include "FlyFishTools/FlyFishUtils.h"
-
 #include "Entities/Player.h"
 
 using namespace Engine;
@@ -35,13 +34,16 @@ void BorderCollision::Render() const
 	for (const auto& plane : m_BorderPlanes)
 	{
 		const bool horizontalPlane{ FlyFishUtils::IsHorzontalPlane(plane) };
-		const BiVector line{ plane ^ FlyFishUtils::e3Gen };
+		const BiVector line{ plane ^ FlyFishUtils::e3 };
 		FlyFishUtils::DrawLine(line, (horizontalPlane ? m_OffsetX : m_OffsetY) * 2.f);
 	}
 }
 
-void BorderCollision::HandleCollision(TriVector& entityPos, const glm::vec2& entitySize) const
+void BorderCollision::HandleCollision(TriVector& entityPos, const glm::vec2& entitySize, int recursionDepth /* = 0 */) const
 {
+	// Safety limit - 2 recursive calls max
+	if (recursionDepth > 2) return;
+
 	const glm::vec2 halfSize{ entitySize * 0.5f };
 
 	if (auto collData{ IsColliding(entityPos, entitySize) }; collData.HasCollision)
@@ -51,19 +53,16 @@ void BorderCollision::HandleCollision(TriVector& entityPos, const glm::vec2& ent
 		const float offsetDist{ horizontalPlane ? halfSize.y : halfSize.x };
 
 		// Projected position on the collision plane
-		const TriVector projectedPos{ FlyFishUtils::Projection(entityPos, collPlane) };
+		TriVector projectedPos{ FlyFishUtils::Projection(entityPos, collPlane) };
 
-		// Create translation line
-		const BiVector normalLine{ collPlane.e1(), collPlane.e2(), collPlane.e3(), 0.f, 0.f, 0.f};
+		// Setting the position to the edge of the collision plane
+		entityPos = projectedPos;
 
-		// Build the translation motor
-		const Motor translateMotor{ Motor::Translation(offsetDist, normalLine) };
-
-		// Translate the entity position using the motor
-		entityPos = MultiVector{ translateMotor * projectedPos * ~translateMotor }.Grade3();
+		// Translate the entity position away from the collision plane (using normal of the plane)
+		FlyFishUtils::Translate(entityPos, collPlane, offsetDist);
 
 		// Recusively check for further collisions
-		HandleCollision(entityPos, entitySize);
+		HandleCollision(entityPos, entitySize, recursionDepth + 1);
 	}
 }
 
@@ -100,7 +99,7 @@ bool BorderCollision::OnWindowResized(WindowResizeEvent& e)
 	const uint32_t width{ e.GetWidth() };
 	const uint32_t height{ e.GetHeight() };
 	if (width < m_BorderOffset || height < m_BorderOffset) return false;
-	
+
 	UpdateBorderPlanes(width, height);
 
 	return false;

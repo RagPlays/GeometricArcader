@@ -27,6 +27,23 @@ void Game::Render() const
 	DrawAxes();
 	m_Player.Render();
 	m_BorderCollision.Render();
+
+
+	///////////////////////////
+	// PLANE TRANLATION TEST //
+
+	Vector plane{ 0.f, 1.0f, 0.0f, 0.0f }; // plane normal -> right (1, 0, 0) direction
+	FlyFishUtils::Translate(plane, 80.f);
+	const BiVector planeLine{ plane ^ FlyFishUtils::e3 };
+
+	Renderer2D::SetDrawColor(Color::cyan);
+	FlyFishUtils::DrawLine(planeLine, 500.f);
+
+	if(FlyFishUtils::SignedDistanceToPlane(plane, m_Player.GetPosition()) < 0.f)
+	{
+		Renderer2D::DrawFilledCircle({ 0.f, 0.f, 1.f }, 20.f);
+	}
+	///////////////////////////
 }
 
 void Game::DrawAxes() const

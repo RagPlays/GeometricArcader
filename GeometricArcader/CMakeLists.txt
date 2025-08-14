@@ -8,7 +8,6 @@ add_subdirectory(vendor/FlyFish)
 file(GLOB_RECURSE GEOA_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
-
 if(NOT GEOA_SOURCES)
     message(FATAL_ERROR "No sources found for GeometricArcader in ${CMAKE_CURRENT_SOURCE_DIR}/src")
 endif()
@@ -16,14 +15,20 @@ endif()
 add_executable("GeometricArcader" ${GEOA_SOURCES})
 set_target_properties(GeometricArcader PROPERTIES OUTPUT_NAME "GeometricArcader")
 
+if (WIN32)
+    target_link_options(GeometricArcader PRIVATE
+        $<$<CONFIG:Dist>:/SUBSYSTEM:WINDOWS>
+        $<$<CONFIG:Dist>:/ENTRY:mainCRTStartup>
+    )
+endif()
+
 target_include_directories(GeometricArcader PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/Engine/vendor/spdlog/include
     ${CMAKE_SOURCE_DIR}/Engine/src
     ${CMAKE_SOURCE_DIR}/Engine/vendor
     ${CMAKE_SOURCE_DIR}/Engine/vendor/glm
-    # — new FlyFish include
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/FlyFish/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/FlyFish/include # School FlyFish Lib
 )
 
 target_link_libraries(GeometricArcader

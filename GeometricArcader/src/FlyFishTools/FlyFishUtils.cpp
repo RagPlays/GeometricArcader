@@ -5,15 +5,13 @@
 #include "FlyFish.h"
 
 // Variables //
-const Vector FlyFishUtils::e1Gen{ 0.f, 1.f, 0.f, 0.f };
-const Vector FlyFishUtils::e2Gen{ 0.f, 0.f, 1.f, 0.f };
-const Vector FlyFishUtils::e3Gen{ 0.f, 0.f, 0.f, 1.f };
+const Vector FlyFishUtils::e1{ 0.f, 1.f, 0.f, 0.f };
+const Vector FlyFishUtils::e2{ 0.f, 0.f, 1.f, 0.f };
+const Vector FlyFishUtils::e3{ 0.f, 0.f, 0.f, 1.f };
 
 const BiVector FlyFishUtils::xAxis{ BiVector{ 0.f, 0.f, 0.f, 1.f, 0.f, 0.f } };
 const BiVector FlyFishUtils::yAxis{ BiVector{ 0.f, 0.f, 0.f, 0.f, 1.f, 0.f } };
 const BiVector FlyFishUtils::zAxis{ BiVector{ 0.f, 0.f, 0.f, 0.f, 0.f, 1.f } };
-
-// General Helpers //
 
 // Checks if the plane is vertical, meaning it has a non-zero e1 component and zero e2 and e3 components.
 bool FlyFishUtils::IsVerticalPlane(const Vector& plane)
@@ -31,7 +29,34 @@ bool FlyFishUtils::IsHorzontalPlane(const Vector& plane)
 	return (std::fabs(plane.e1()) < epsilon && std::fabs(plane.e2()) > epsilon && std::fabs(plane.e3()) < epsilon);
 }
 
-// Calculations //
+void FlyFishUtils::Translate(Vector& plane, float distance)
+{
+	plane.e0() -= distance; // (-) because n = n^ + n0(-e0) -> (-e0)
+}
+
+void FlyFishUtils::Translate(TriVector& point, const glm::vec3& direction, float distance)
+{
+	// Normalize the direction vector
+	const glm::vec3 dirN{ glm::normalize(direction) };
+
+	// Take half negative distance (because of sandwich)
+	const float d{ -distance * 0.5f };
+	const Motor translateMotor { 1.f, d * dirN.x, d * dirN.y, d * dirN.z, 0.f, 0.f, 0.f, 0.f };
+
+	// Apply the Translation
+	point = (translateMotor * point * ~translateMotor).Grade3();
+}
+
+void FlyFishUtils::Translate(TriVector& point, const Vector& planeDirection, float distance)
+{
+	Translate(point, glm::vec3{ planeDirection.e1(), planeDirection.e2(), planeDirection.e3() }, distance);
+}
+
+void FlyFishUtils::Translate(TriVector& point, const BiVector& lineDirection, float distance)
+{
+	const Motor translateMotor{ Motor::Translation(distance, lineDirection) };
+	point = (translateMotor * point * ~translateMotor).Grade3();
+}
 
 // returns signed distance from TriVector point to Vector plane.
 // Positive means point lies in direction of plane normal.
@@ -75,6 +100,21 @@ BiVector FlyFishUtils::Rejection(const BiVector& line, const Vector& referencePl
 TriVector FlyFishUtils::Rejection(const TriVector& point, const Vector& referencePlane)
 {
 	return (point - Projection(point, referencePlane));
+}
+
+Vector FlyFishUtils::Reflection(const Vector& plane, const Vector& mirrorPlane)
+{
+	return (-mirrorPlane * plane * ~mirrorPlane).Grade1();
+}
+
+BiVector FlyFishUtils::Reflection(const BiVector& line, const Vector& mirrorPlane)
+{
+	return (-mirrorPlane * line * ~mirrorPlane).Grade2();
+}
+
+TriVector FlyFishUtils::Reflection(const TriVector& point, const Vector& mirrorPlane)
+{
+	return (-mirrorPlane * point * ~mirrorPlane).Grade3();
 }
 
 // Rendering //

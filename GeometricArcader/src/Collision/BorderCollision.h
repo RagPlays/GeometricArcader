@@ -29,7 +29,7 @@ public:
 
 	void Render() const;
 
-	void HandleCollision(TriVector& entityPos, const glm::vec2& entitySize) const;
+	void HandleCollision(TriVector& entityPos, const glm::vec2& entitySizeint, int recursionDepth  = 0 ) const;
 	BorderCollisionData IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const;
 
 private:

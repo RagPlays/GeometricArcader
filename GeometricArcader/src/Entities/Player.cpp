@@ -54,27 +54,19 @@ void Player::UpdateMovement(float deltaTime)
 
 	if (Input::IsKeyPressed(Key::W) || Input::IsKeyPressed(Key::Up))
 	{
-		const Motor upMotor{ Motor::Translation(deltaSpeed, yMoveLine) };
-		//ENGINE_TRACE("UpMotor: {0}, with DeltaSpeed: {1}", upMotor.ToString(), deltaSpeed);
-		m_Position = MultiVector{ upMotor * m_Position * ~upMotor }.Grade3();
+		FlyFishUtils::Translate(m_Position, glm::vec3{ 0.f, 1.f, 0.f }, deltaSpeed);
 	}
 	if (Input::IsKeyPressed(Key::S) || Input::IsKeyPressed(Key::Down))
 	{
-		const Motor downMotor{ Motor::Translation(-deltaSpeed, yMoveLine) };
-		//ENGINE_TRACE("DownMotor: {0}, with DeltaSpeed: {1}", downMotor.ToString(), deltaSpeed);
-		m_Position = MultiVector{ downMotor * m_Position * ~downMotor }.Grade3();
+		FlyFishUtils::Translate(m_Position, glm::vec3{ 0.f, -1.f, 0.f }, deltaSpeed);
 	}
 	if (Input::IsKeyPressed(Key::A) || Input::IsKeyPressed(Key::Left))
 	{
-		const Motor leftMotor{ Motor::Translation(-deltaSpeed, xMoveLine) };
-		//ENGINE_TRACE("LeftMotor: {0}, with DeltaSpeed: {1}", leftMotor.ToString(), deltaSpeed);
-		m_Position = MultiVector{ leftMotor * m_Position * ~leftMotor }.Grade3();
+		FlyFishUtils::Translate(m_Position, glm::vec3{ -1.f, 0.f, 0.f }, deltaSpeed);
 	}
 	if (Input::IsKeyPressed(Key::D) || Input::IsKeyPressed(Key::Right))
 	{
-		const Motor rightMotor{ Motor::Translation(deltaSpeed, xMoveLine) };
-		//ENGINE_TRACE("RightMotor: {0}, with DeltaSpeed: {1}", rightMotor.ToString(), deltaSpeed);
-		m_Position = MultiVector{ rightMotor * m_Position * ~rightMotor }.Grade3();
+		FlyFishUtils::Translate(m_Position, glm::vec3{ 1.f, 0.f, 0.f }, deltaSpeed);
 	}
 }
 
@@ -87,34 +79,31 @@ bool Player::OnKeyReleased(KeyReleasedEvent& e)
 {
 	//if (e.GetKeyCode() == Key::W || e.GetKeyCode() == Key::Up)
 	//{
-	//	ENGINE_TRACE("Up key released");
-	//	ENGINE_TRACE("Position before: ({0}, {1}, {0})", m_Position[0], m_Position[1], m_Position[2]);
-	//	ENGINE_TRACE("Position TriVector before: {}", m_Position.ToString());
-	//	const Motor motor{ Motor::Translation(static_cast<float>(1080 / 2), FlyFishUtils::yAxis) };
-	//	m_Position = MultiVector{ motor * m_Position * ~motor }.Grade3();
+	//	/*const Motor motor{ Motor::Translation(static_cast<float>(1080 / 2), FlyFishUtils::yAxis) };
+	//	m_Position = MultiVector{ motor * m_Position * ~motor }.Grade3();*/
 
-	//	ENGINE_TRACE("Moved: {0}, Motor: {1}", static_cast<float>(1080 / 2), motor.ToString());
-	//	ENGINE_TRACE("Position after: ({0}, {1}, {0})", m_Position[0], m_Position[1], m_Position[2]);
-	//	ENGINE_TRACE("Position TriVector after: {}", m_Position.ToString());
-	//	ENGINE_TRACE(""); // space
+	//	FlyFishUtils::Translate(m_Position, glm::vec3{ 0.f, 1.f, 0.f }, static_cast<float>(1080 / 2));
 	//}
 	//else if (e.GetKeyCode() == Key::S || e.GetKeyCode() == Key::Down)
 	//{
-	//	ENGINE_TRACE("Down key released");
-	//	const Motor motor{ Motor::Translation(-static_cast<float>(1080 / 2), FlyFishUtils::yAxis) };
-	//	m_Position = MultiVector{ motor * m_Position * ~motor }.Grade3();
+	//	/*const Motor motor{ Motor::Translation(-static_cast<float>(1080 / 2), FlyFishUtils::yAxis) };
+	//	m_Position = MultiVector{ motor * m_Position * ~motor }.Grade3();*/
+
+	//	FlyFishUtils::Translate(m_Position, glm::vec3{ 0.f, -1.f, 0.f }, static_cast<float>(1080 / 2));
 	//}
 	//else if(e.GetKeyCode() == Key::A || e.GetKeyCode() == Key::Left)
 	//{
-	//	ENGINE_TRACE("Left key released");
-	//	const Motor motor{ Motor::Translation(-static_cast<float>(1920 / 2), FlyFishUtils::xAxis) };
-	//	m_Position = MultiVector{ motor * m_Position * ~motor }.Grade3();
+	//	/*const Motor motor{ Motor::Translation(-static_cast<float>(1920 / 2), FlyFishUtils::xAxis) };
+	//	m_Position = MultiVector{ motor * m_Position * ~motor }.Grade3();*/
+
+	//	FlyFishUtils::Translate(m_Position, glm::vec3{ -1.f, 0.f, 0.f }, static_cast<float>(1920 / 2));
 	//}
 	//else if(e.GetKeyCode() == Key::D || e.GetKeyCode() == Key::Right)
 	//{
-	//	ENGINE_TRACE("Right key released");
-	//	const Motor motor{ Motor::Translation(static_cast<float>(1920 / 2), FlyFishUtils::xAxis) };
-	//	m_Position = MultiVector{ motor * m_Position * ~motor }.Grade3();
+	//	/*const Motor motor{ Motor::Translation(static_cast<float>(1920 / 2), FlyFishUtils::xAxis) };
+	//	m_Position = MultiVector{ motor * m_Position * ~motor }.Grade3();*/
+
+	//	FlyFishUtils::Translate(m_Position, glm::vec3{ 1.f, 0.f, 0.f }, static_cast<float>(1920 / 2));
 	//}
 
 	return false;
