@@ -7,28 +7,35 @@ using namespace Engine;
 
 Player::Player()
 	: m_Position{ 0.f, 0.f, 0.f }
-	, m_Size{ 50.f, 200.f }
+	, m_Size{ 50.f, 50.f }
+	, m_EnergyBar{ 100.f }
+	, m_SpeedController{}
 {
 }
 
 void Player::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher{ e };
-	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(OnKeyReleased));
+	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(Player::OnKeyReleased));
 }
 
 void Player::Update(const BorderCollision& coll, float deltaTime)
 {
 	UpdateMovement(deltaTime);
 	UpdateCollision(coll);
+
+	m_SpeedController.Update();
 }
 
 void Player::Render() const
 {
-	Renderer2D::SetDrawColor(Color::orange);
-	FlyFishUtils::DrawFillRect(m_Position, glm::vec2{ m_Size.x - 3.f, m_Size.y - 3.f });
 	Renderer2D::SetDrawColor(Color::red);
-	FlyFishUtils::DrawRect(m_Position, m_Size);
+	FlyFishUtils::DrawFillRect(m_Position, glm::vec2{ m_Size.x - 4.f, m_Size.y - 4.f });
+	Renderer2D::SetDrawColor(Color::white);
+	FlyFishUtils::DrawFillRect(m_Position, m_Size);
+
+	m_EnergyBar.Render();
+	m_SpeedController.Render();
 }
 
 // Getters //
@@ -48,9 +55,6 @@ void Player::UpdateMovement(float deltaTime)
 	const bool sprinting{ Input::IsKeyPressed(Key::LeftShift) };
 	const float moveSpeed{ sprinting ? baseMoveSpeed * 2.f : baseMoveSpeed };
 	const float deltaSpeed{ moveSpeed * deltaTime };
-
-	const BiVector xMoveLine{ 1.f, 0.f, 0.f, 0.f, 0.f, 0.f };
-	const BiVector yMoveLine{ 0.f, 1.f, 0.f, 0.f, 0.f, 0.f };
 
 	if (Input::IsKeyPressed(Key::W) || Input::IsKeyPressed(Key::Up))
 	{

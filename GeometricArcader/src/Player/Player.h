@@ -5,6 +5,9 @@
 
 #include "FlyFish.h"
 
+#include "EnergyBar.h"
+#include "SpeedController.h"
+
 class BorderCollision;
 
 class Player final
@@ -40,6 +43,8 @@ private:
 	TriVector m_Position;
 	glm::vec2 m_Size;
 
+	EnergyBar m_EnergyBar;
+	SpeedController m_SpeedController;
 };
 
 #endif // !PLAYER_H

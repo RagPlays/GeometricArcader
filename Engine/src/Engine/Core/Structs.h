@@ -202,7 +202,7 @@ namespace Engine
 		float radiusY;
 	};
 
-	///////// OTHER	/////////
+	///////// COLOR	/////////
 	namespace Color
 	{
 		static constexpr glm::vec4 red{ 1.0f, 0.0f, 0.0f, 1.f };
@@ -217,11 +217,18 @@ namespace Engine
 		static constexpr glm::vec4 violet{ 0.5f, 0.0f, 1.0f, 1.f };
 		static constexpr glm::vec4 magenta{ 1.0f, 0.0f, 1.0f, 1.f };
 		static constexpr glm::vec4 rose{ 1.0f, 0.0f, 0.5f, 1.f };
+
+		static constexpr glm::vec4 transparent{ 0.0f, 0.0f, 0.0f, 0.0f };
 		static constexpr glm::vec4 white{ 1.0f, 1.0f, 1.0f, 1.f };
 		static constexpr glm::vec4 black{ 0.0f, 0.0f, 0.0f, 1.f };
 		static constexpr glm::vec4 gray{ 0.5f, 0.5f, 0.5f, 1.f };
 		static constexpr glm::vec4 lightGray{ 0.75f, 0.75f, 0.75f, 1.f };
 		static constexpr glm::vec4 darkGray{ 0.25f, 0.25f, 0.25f, 1.f };
+
+		static glm::vec4 FromRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+		{
+			return glm::vec4(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
+		}
 	}
 }
 

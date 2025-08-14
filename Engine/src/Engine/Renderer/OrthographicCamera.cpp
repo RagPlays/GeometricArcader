@@ -36,6 +36,6 @@ namespace Engine
 	{
 		ENGINE_PROFILE_FUNCTION();
 
-		m_ProjectionMatrix = glm::ortho(m_Left, m_Right, m_Bottom, m_Top, -100.f, 100.f);
+		m_ProjectionMatrix = glm::ortho(m_Left, m_Right, m_Bottom, m_Top, m_Near, m_Far);
 	}
 }

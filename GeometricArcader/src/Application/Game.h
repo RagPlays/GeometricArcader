@@ -3,7 +3,7 @@
 
 #include <Engine.h>
 
-#include "Entities/Player.h"
+#include "Player/Player.h"
 #include "Collision/BorderCollision.h"
 
 class Game final
@@ -22,10 +22,6 @@ public:
 
 	void Update(float deltaTime);
 	void Render() const;
-
-private:
-
-	void DrawAxes() const;
 
 private:
 

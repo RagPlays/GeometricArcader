@@ -5,7 +5,7 @@
 using namespace Engine;
 
 DefaultCamera::DefaultCamera()
-	: m_Camera{}
+	: m_Camera{ -1000.f, 1000.f }
 {
 	UpdateProjection();
 }

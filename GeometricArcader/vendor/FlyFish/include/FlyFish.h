@@ -12,7 +12,6 @@ class TriVector;
 class Motor;
 class GANull;
 
-constexpr float DEG_TO_RAD = std::numbers::pi_v<float> / 180.0f;
 
 template <typename Derived, std::size_t DataSize>
 class GAElement
@@ -715,9 +714,11 @@ public:
 
     [[nodiscard]] static Motor Rotation(float angle, const BiVector& line)
     {
-        const float mult{ -sin(angle * DEG_TO_RAD / 2) / line.Norm() };
+        constexpr float DEG_TO_RAD{ std::numbers::pi_v<float> / 180.0f };
+
+        const float mult{ -sin(angle * DEG_TO_RAD * 0.5f) / line.Norm() };
         return Motor{
-            cos(angle * DEG_TO_RAD /2),
+            cos(angle * DEG_TO_RAD * 0.5f),
             0,
             0,
             0,

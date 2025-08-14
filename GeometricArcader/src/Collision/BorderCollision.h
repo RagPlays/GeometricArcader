@@ -6,7 +6,7 @@
 #include "FlyFish.h"
 
 
-struct BorderCollisionData
+struct CollidingData
 {
 	const bool HasCollision{ false };
 	const float SignedDistance{ 0.f }; // Signed distance to the plane
@@ -30,7 +30,7 @@ public:
 	void Render() const;
 
 	void HandleCollision(TriVector& entityPos, const glm::vec2& entitySizeint, int recursionDepth  = 0 ) const;
-	BorderCollisionData IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const;
+	CollidingData IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const;
 
 private:
 

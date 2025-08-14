@@ -1,7 +1,7 @@
 #include "BorderCollision.h"
 
 #include "FlyFishTools/FlyFishUtils.h"
-#include "Entities/Player.h"
+#include "Player/Player.h"
 
 using namespace Engine;
 
@@ -66,7 +66,7 @@ void BorderCollision::HandleCollision(TriVector& entityPos, const glm::vec2& ent
 	}
 }
 
-BorderCollisionData BorderCollision::IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const
+CollidingData BorderCollision::IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const
 {
 	const glm::vec2 halfSize{ entitySize * 0.5f };
 
@@ -76,11 +76,11 @@ BorderCollisionData BorderCollision::IsColliding(const TriVector& entityPoint, c
 		const float offsetDistance{ horizontalPlane ? halfSize.y : halfSize.x };
 		if (float signedDistance{ FlyFishUtils::SignedDistanceToPlane(plane, entityPoint) }; signedDistance < offsetDistance)
 		{
-			return BorderCollisionData{ true, signedDistance, &plane };
+			return CollidingData{ true, signedDistance, &plane };
 		}
 	}
 
-	return BorderCollisionData{};
+	return CollidingData{};
 }
 
 void BorderCollision::UpdateBorderPlanes(uint32_t windowWidth, uint32_t windowHeight)

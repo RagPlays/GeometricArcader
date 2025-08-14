@@ -63,9 +63,35 @@ namespace Engine
         glfwSetWindowSize(m_Window, static_cast<int>(width), static_cast<int>(height));
     }
 
-    void WindowsWindow::SetEventCallback(const EventCallbackFn& callback)
+    void WindowsWindow::SetFullscreen(bool fullscreen)
     {
-        m_Data.eventCallback = callback;
+        if (m_Data.fullScreen == fullscreen) return;
+        m_Data.fullScreen = fullscreen;
+
+        if (fullscreen)
+        {
+            // Save windowed size
+            glfwGetWindowPos(m_Window, &m_LastWindowedPosX, &m_LastWindowedPosY);
+            glfwGetWindowSize(m_Window, &m_LastWindowedSizeX, &m_LastWindowedSizeY);
+
+            GLFWmonitor* const monitor{ glfwGetPrimaryMonitor() };
+            ENGINE_CORE_ASSERT_MSG(monitor, "Failed to get primary monitor!");
+
+            const GLFWvidmode* const videoMode{ glfwGetVideoMode(monitor) };
+            ENGINE_CORE_ASSERT_MSG(videoMode, "Failed to get video mode!");
+
+            glfwSetWindowMonitor(m_Window, monitor, 0, 0, videoMode->width, videoMode->height, videoMode->refreshRate);
+        }
+        else
+        {
+            // Restore windowed size & position
+            glfwSetWindowMonitor(m_Window, nullptr, m_LastWindowedPosX, m_LastWindowedPosY, m_LastWindowedSizeX, m_LastWindowedSizeY, 0);
+        }
+    }
+
+    bool WindowsWindow::IsFullscreen() const
+    {
+        return m_Data.fullScreen;
     }
 
     void WindowsWindow::SetVSync(bool enabled)
@@ -78,6 +104,11 @@ namespace Engine
     bool WindowsWindow::IsVSync() const
     {
         return m_Data.vSync;
+    }
+
+    void WindowsWindow::SetEventCallback(const EventCallbackFn& callback)
+    {
+        m_Data.eventCallback = callback;
     }
 
     void* WindowsWindow::GetNativeWindow() const
@@ -108,6 +139,10 @@ namespace Engine
 
             if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
             {
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
                 glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
                 glfwWindowHint(GLFW_DEPTH_BITS, 24);
             }
@@ -117,29 +152,41 @@ namespace Engine
         {
             ENGINE_PROFILE_SCOPE("WindowsWindow::Init-glfwCreateWindow");
 
-            GLFWmonitor* monitor{ glfwGetPrimaryMonitor() };
+            GLFWmonitor* const monitor{ glfwGetPrimaryMonitor() };
             ENGINE_CORE_ASSERT_MSG(monitor, "Failed to get primary monitor!");
 
-            const GLFWvidmode* videoMode{ glfwGetVideoMode(monitor) };
+            const GLFWvidmode* const videoMode{ glfwGetVideoMode(monitor) };
             ENGINE_CORE_ASSERT_MSG(videoMode, "Failed to get video mode!");
 
             if (props.fullScreen && monitor && videoMode)
             {
-                m_Data.width = videoMode->width;
-                m_Data.height = videoMode->height;
+                //VideoMode width and height is the actual size of you monitor
+                m_Data.fullScreen = props.fullScreen;
+                m_Data.width = static_cast<uint32_t>(videoMode->width);
+                m_Data.height = static_cast<uint32_t>(videoMode->height);
             }
 
             m_Window = glfwCreateWindow
             (
-                props.width,
-                props.height,
+                static_cast<int>(m_Data.width),
+                static_cast<int>(m_Data.height),
                 m_Data.title.c_str(),
-                props.fullScreen ? monitor : nullptr,
+                m_Data.fullScreen ? monitor : nullptr,
                 nullptr
             );
+
+            ENGINE_CORE_ASSERT_MSG(m_Window, "Failed to create GLFW window!");
+
+            // Center Window
             if (!props.fullScreen)
             {
-                glfwSetWindowPos(m_Window, videoMode->width / 2 - props.width / 2, videoMode->height / 2 - props.height / 2);
+                int windowWidth{};
+                int windowHeight{};
+                glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
+
+                const int posX{ (videoMode->width - windowWidth) / 2 };
+                const int posY{ (videoMode->height - windowHeight) / 2 };
+                glfwSetWindowPos(m_Window, posX, posY);
             }
         }
         ++s_GLFWWindowCount;

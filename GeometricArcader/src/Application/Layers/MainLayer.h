@@ -31,9 +31,10 @@ private:
 	const unsigned int m_MinHeight;
 
 	DefaultCamera m_Camera;
-	Game m_Game;
+	std::unique_ptr<Game> m_pGame;
 
 	bool m_ShowImgui;
+	bool m_RestartGameRequest;
 };
 
 #endif // !MAINLAYER_H

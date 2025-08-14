@@ -29,7 +29,7 @@ namespace Engine
 		const GLubyte* renderer{ glGetString(GL_RENDERER) };
 		const GLubyte* version{ glGetString(GL_VERSION) };
 
-		// Converting GLubyte* to std::string
+		// Converting GLubyte* to char*
 		const char* vendorStr{ reinterpret_cast<const char*>(vendor) };
 		const char* rendererStr{ reinterpret_cast<const char*>(renderer) };
 		const char* versionStr{ reinterpret_cast<const char*>(version) };

@@ -10,8 +10,9 @@ MainLayer::MainLayer()
 	, m_MinWidth{ 500 }
 	, m_MinHeight{ 500 }
 	, m_Camera{}
-	, m_Game{}
+	, m_pGame{ new Game{} }
 	, m_ShowImgui{}
+	, m_RestartGameRequest{}
 {
 }
 
@@ -21,8 +22,14 @@ MainLayer::~MainLayer()
 
 void MainLayer::OnUpdate()
 {
+	if (m_RestartGameRequest) 
+	{
+		m_pGame.reset(new Game{});
+		m_RestartGameRequest = false;
+	}
+
 	const FrameTimer& timer{ FrameTimer::Get() };
-	m_Game.Update(timer.GetSeconds());
+	m_pGame->Update(timer.GetSeconds());
 
 	Renderer2D::ResetStats();
 	RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.f });
@@ -30,7 +37,7 @@ void MainLayer::OnUpdate()
 
 	Renderer2D::BeginScene(m_Camera.GetCamera());
 	{
-		m_Game.Render();
+		m_pGame->Render();
 	}
 	Renderer2D::EndScene();
 }
@@ -96,7 +103,7 @@ void MainLayer::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(MainLayer::OnKeyReleased));
 
 	m_Camera.OnEvent(e);
-	m_Game.OnEvent(e);
+	m_pGame->OnEvent(e);
 }
 
 bool MainLayer::OnWindowResized(WindowResizeEvent& event)
@@ -116,11 +123,25 @@ bool MainLayer::OnWindowResized(WindowResizeEvent& event)
 bool MainLayer::OnKeyReleased(KeyReleasedEvent& e)
 {
 	const bool iPressedThisFrame{ e.GetKeyCode() == Key::I };
-	const bool ctrlPressed{ Input::IsKeyPressed(Key::LeftControl) };
+	const bool leftCtrlPressed{ Input::IsKeyPressed(Key::LeftControl) };
+	const bool leftAltPressed{ Input::IsKeyPressed(Key::LeftAlt) };
 
-	if (iPressedThisFrame && ctrlPressed)
+	// ImGui Toggle
+	if (iPressedThisFrame && leftCtrlPressed)
 	{
 		m_ShowImgui = !m_ShowImgui;
+	}
+
+	// Game Reset
+	if (e.GetKeyCode() == Key::R)
+	{
+		m_RestartGameRequest = true;
+	}
+
+	// Fullscreen Toggle
+	if(e.GetKeyCode() == Key::Enter && leftAltPressed)
+	{
+		m_Window.SetFullscreen(!m_Window.IsFullscreen());
 	}
 
 	return false;

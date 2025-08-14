@@ -24,10 +24,13 @@ namespace Engine
 		virtual uint32_t GetHeight() const override;
 		virtual void SetWindowSize(uint32_t width, uint32_t height) override;
 
-		virtual void SetEventCallback(const EventCallbackFn& callback) override;
+		virtual void SetFullscreen(bool fullscreen) override;
+		virtual bool IsFullscreen() const override;
+
 		virtual void SetVSync(bool enabled) override;
 		virtual bool IsVSync() const override;
 
+		virtual void SetEventCallback(const EventCallbackFn& callback) override;
 		virtual void* GetNativeWindow() const override;
 
 	private:
@@ -47,9 +50,15 @@ namespace Engine
 			uint32_t width;
 			uint32_t height;
 			bool vSync;
+			bool fullScreen;
 
 			EventCallbackFn eventCallback;
 		};
+
+		int m_LastWindowedPosX;
+		int m_LastWindowedPosY;
+		int m_LastWindowedSizeX;
+		int m_LastWindowedSizeY;
 
 		WindowData m_Data;
 	};

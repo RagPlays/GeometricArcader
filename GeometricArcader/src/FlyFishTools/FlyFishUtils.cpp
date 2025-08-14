@@ -41,10 +41,10 @@ void FlyFishUtils::Translate(TriVector& point, const glm::vec3& direction, float
 
 	// Take half negative distance (because of sandwich)
 	const float d{ -distance * 0.5f };
-	const Motor translateMotor { 1.f, d * dirN.x, d * dirN.y, d * dirN.z, 0.f, 0.f, 0.f, 0.f };
+	const Motor translator { 1.f, d * dirN.x, d * dirN.y, d * dirN.z, 0.f, 0.f, 0.f, 0.f };
 
 	// Apply the Translation
-	point = (translateMotor * point * ~translateMotor).Grade3();
+	point = (translator * point * ~translator).Grade3();
 }
 
 void FlyFishUtils::Translate(TriVector& point, const Vector& planeDirection, float distance)
@@ -54,22 +54,27 @@ void FlyFishUtils::Translate(TriVector& point, const Vector& planeDirection, flo
 
 void FlyFishUtils::Translate(TriVector& point, const BiVector& lineDirection, float distance)
 {
-	const Motor translateMotor{ Motor::Translation(distance, lineDirection) };
-	point = (translateMotor * point * ~translateMotor).Grade3();
+	const Motor translator{ Motor::Translation(distance, lineDirection) };
+	point = (translator * point * ~translator).Grade3();
 }
+
+//void FlyFishUtils::Translate(TriVector& point, const Motor& translator)
+//{
+//	// Apply the Translation
+//	point = (translator * point * ~translator).Grade3();
+//}
 
 // returns signed distance from TriVector point to Vector plane.
 // Positive means point lies in direction of plane normal.
 float FlyFishUtils::SignedDistanceToPlane(const Vector& plane, const TriVector& point)
 {
-	const float join{ plane & point };		// Join
 	const float pn{ plane.Norm() };			// sqrt(a^2 + b^2 + c^2)
 	const float pw{ point.Norm() };			// Scaler of e123 (usually 1.0f)
-	if (pn == 0.0f || pw == 0.0f) return 0.0f; // guard against degenerate inputs
+	if (pn == 0.0f || pw == 0.0f) return 0.0f;
 	
 	const float normProduct{ pn * pw };
-	if (normProduct == 1.f) return join;
-	else return join / (normProduct);
+	const float join{ plane & point };
+	return (normProduct == 1.f) ? join : (join / normProduct);
 }
 
 Vector FlyFishUtils::Projection(const Vector& plane, const Vector& referencePlane)
