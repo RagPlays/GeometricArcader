@@ -3,31 +3,44 @@
 
 #include <Engine.h>
 
-class EnergyBar final
+enum class UIAnchor
+{
+	Middle,
+	LeftBottom,
+	RightBottom,
+	LeftTop,
+	RightTop
+};
+
+class ProgressBar final
 {
 public:
 
-	explicit EnergyBar(float maxEnergy);
-	~EnergyBar() = default;
+	explicit ProgressBar(UIAnchor anchor, const glm::vec2& margin, const glm::vec2& size);
+	~ProgressBar() = default;
 
-	EnergyBar(const EnergyBar&) = delete;
-	EnergyBar(EnergyBar&&) noexcept = delete;
-	EnergyBar& operator=(const EnergyBar&) = delete;
-	EnergyBar& operator=(EnergyBar&&) noexcept = delete;
+	ProgressBar(const ProgressBar&) = delete;
+	ProgressBar(ProgressBar&&) noexcept = delete;
+	ProgressBar& operator=(const ProgressBar&) = delete;
+	ProgressBar& operator=(ProgressBar&&) noexcept = delete;
 
 	void Render() const;
 
-	void SetEnergy(float energy);
-	float GetEnergy() const;
+	void SetValue(float energy);
+	float GetValue() const;
+
+	void SetMaxValue(float maxEnergy);
+	float GetMaxValue() const;
 
 private:
 
 	const Engine::Window& m_Window;
 
-	float m_CurrentEnergy;
-	const float m_MaxEnergy;
+	float m_Value;
+	float m_MaxValue;
 
-	const glm::vec2 m_LeftBotMargin;
+	const UIAnchor m_Anchor;
+	const glm::vec2 m_Margin;
 	const glm::vec2 m_Size;
 };
 

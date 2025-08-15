@@ -33,54 +33,60 @@ void BorderCollision::Render() const
 
 	for (const auto& plane : m_BorderPlanes)
 	{
-		const bool horizontalPlane{ FlyFishUtils::IsHorzontalPlane(plane) };
+		const bool horizontalPlane{ FlyFishUtils::IsHorizontalPlane(plane) };
 		const BiVector line{ plane ^ FlyFishUtils::e3 };
 		FlyFishUtils::DrawLine(line, (horizontalPlane ? m_OffsetX : m_OffsetY) * 2.f);
 	}
 }
 
-void BorderCollision::HandleCollision(TriVector& entityPos, const glm::vec2& entitySize, int recursionDepth /* = 0 */) const
+CollisionsData BorderCollision::HandleCollisions(TriVector& entityPos, const glm::vec2& entitySize) const
 {
-	// Safety limit - 2 recursive calls max
-	if (recursionDepth > 2) return;
-
-	const glm::vec2 halfSize{ entitySize * 0.5f };
-
-	if (auto collData{ IsColliding(entityPos, entitySize) }; collData.HasCollision)
+	CollisionsData collsData{};
+	constexpr uint8_t maxHandles{ 2 };
+	for (uint8_t handleIdx{}; handleIdx < maxHandles; ++handleIdx)
 	{
-		const Vector& collPlane{ *collData.CollidedPlane };
-		const bool horizontalPlane{ FlyFishUtils::IsHorzontalPlane(collPlane) };
-		const float offsetDist{ horizontalPlane ? halfSize.y : halfSize.x };
-
-		// Projected position on the collision plane
-		TriVector projectedPos{ FlyFishUtils::Projection(entityPos, collPlane) };
-
-		// Setting the position to the edge of the collision plane
-		entityPos = projectedPos;
-
-		// Translate the entity position away from the collision plane (using normal of the plane)
-		FlyFishUtils::Translate(entityPos, collPlane, offsetDist);
-
-		// Recusively check for further collisions
-		HandleCollision(entityPos, entitySize, recursionDepth + 1);
+		CollidingData collData{ TryGetCollision(entityPos, entitySize) };
+		if (!collData.HasCollision()) break;
+		ResolveCollision(entityPos, entitySize, collData);
+		collsData.Collisions.emplace_back(collData);
 	}
+	return collsData;
 }
 
-CollidingData BorderCollision::IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const
+CollidingData BorderCollision::TryGetCollision(const TriVector& entityPoint, const glm::vec2& entitySize) const
 {
 	const glm::vec2 halfSize{ entitySize * 0.5f };
 
 	for (const auto& plane : m_BorderPlanes)
 	{
-		const bool horizontalPlane{ FlyFishUtils::IsHorzontalPlane(plane) };
+		const bool horizontalPlane{ FlyFishUtils::IsHorizontalPlane(plane) };
 		const float offsetDistance{ horizontalPlane ? halfSize.y : halfSize.x };
 		if (float signedDistance{ FlyFishUtils::SignedDistanceToPlane(plane, entityPoint) }; signedDistance < offsetDistance)
 		{
-			return CollidingData{ true, signedDistance, &plane };
+			return CollidingData{ signedDistance, &plane };
 		}
 	}
 
 	return CollidingData{};
+}
+
+void BorderCollision::ResolveCollision(TriVector& entityPos, const glm::vec2& entitySize, const CollidingData& collision) const
+{
+	if (collision.CollidedPlane == nullptr) return;
+
+	const Vector& collPlane{ *collision.CollidedPlane };
+	const bool horizontalPlane{ FlyFishUtils::IsHorizontalPlane(collPlane) };
+	const glm::vec2 halfSize{ entitySize * 0.5f };
+	const float offsetDist{ horizontalPlane ? halfSize.y : halfSize.x };
+
+	// Projected position on the collision plane
+	TriVector projectedPos{ FlyFishUtils::Projection(entityPos, collPlane) };
+
+	// Setting the position to the edge of the collision plane
+	entityPos = projectedPos;
+
+	// Translate the entity position away from the collision plane (using normal of the plane)
+	FlyFishUtils::Translate(entityPos, collPlane, offsetDist);
 }
 
 void BorderCollision::UpdateBorderPlanes(uint32_t windowWidth, uint32_t windowHeight)

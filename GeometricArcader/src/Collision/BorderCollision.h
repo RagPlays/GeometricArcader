@@ -8,9 +8,17 @@
 
 struct CollidingData
 {
-	const bool HasCollision{ false };
 	const float SignedDistance{ 0.f }; // Signed distance to the plane
 	const Vector* const CollidedPlane{ nullptr }; // Pointer to the plane that caused the collision
+
+	bool HasCollision() const { return CollidedPlane != nullptr; }
+};
+
+struct CollisionsData
+{
+	std::vector<CollidingData> Collisions;
+
+	bool HasCollisions() const { return !Collisions.empty(); }
 };
 
 class BorderCollision final
@@ -29,10 +37,12 @@ public:
 
 	void Render() const;
 
-	void HandleCollision(TriVector& entityPos, const glm::vec2& entitySizeint, int recursionDepth  = 0 ) const;
-	CollidingData IsColliding(const TriVector& entityPoint, const glm::vec2& entitySize) const;
+	CollisionsData HandleCollisions(TriVector& entityPos, const glm::vec2& entitySizeint) const;
+	CollidingData TryGetCollision(const TriVector& entityPoint, const glm::vec2& entitySize) const;
 
 private:
+
+	void ResolveCollision(TriVector& entityPos, const glm::vec2& entitySize, const CollidingData& collision) const;
 
 	void UpdateBorderPlanes(uint32_t width, uint32_t height);
 
@@ -45,7 +55,6 @@ private:
 	float m_OffsetX;
 	float m_OffsetY;
 	std::array<Vector, 4> m_BorderPlanes; // Planes for each border (left, right, top, bottom)
-
 };
 
 #endif // !BORDERCOLLISION_H

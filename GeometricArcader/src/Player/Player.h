@@ -29,21 +29,25 @@ public:
 
 	// Getters //
 	const TriVector& GetPosition() const;
+	const TriVector Get2DPosition() const;
 	const glm::vec2& GetSize() const;
 
 private:
 
+	void UpdateEnergy(float deltaTime);
 	void UpdateMovement(float deltaTime);
 	void UpdateCollision(const BorderCollision& coll);
-
-	bool OnKeyReleased(Engine::KeyReleasedEvent& event);
 
 private:
 
 	TriVector m_Position;
+	Motor m_Velocity; // Transformer
 	glm::vec2 m_Size;
 
-	EnergyBar m_EnergyBar;
+	const float m_EnergyGain;
+	const float m_MaxEnergy;
+
+	ProgressBar m_EnergyBar;
 	SpeedController m_SpeedController;
 };
 

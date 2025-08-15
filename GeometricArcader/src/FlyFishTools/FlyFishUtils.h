@@ -6,8 +6,9 @@
 class Vector;
 class BiVector;
 class TriVector;
+class Motor;
 
-class FlyFishUtils
+class FlyFishUtils final
 {
 public:
 
@@ -29,12 +30,16 @@ public:
 
     // General Helpers //
     static bool IsVerticalPlane(const Vector& plane);
-    static bool IsHorzontalPlane(const Vector& plane);
+    static bool IsHorizontalPlane(const Vector& plane);
+
+	static void ScaleTranslator(Motor& translator, float scale);
+	static Motor GetScaledTranslator(const Motor& translator, float scale);
 
     // Plane translation
     static void Translate(Vector& plane, float distance);
 
     // Point translation
+    static void Translate(TriVector& point, const Motor& translator);
     static void Translate(TriVector& point, const glm::vec3& direction, float distance);
     static void Translate(TriVector& point, const Vector& planeDirection, float distance);
     static void Translate(TriVector& point, const BiVector& lineDirection, float distance);

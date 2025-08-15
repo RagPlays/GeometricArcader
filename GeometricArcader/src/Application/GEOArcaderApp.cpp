@@ -8,7 +8,7 @@ Engine::Application* Engine::CreateApplication(const ApplicationCommandLineArgs&
 }
 
 GEOArcaderApp::GEOArcaderApp()
-	: Application{ Engine::WindowProps{ "Geometric Arcader", 1920, 1080, false, true } }
+	: Application{ Engine::WindowProps{ "Geometric Arcader", 1920, 1080, false, false } }
 {
 	AddLayer(new MainLayer{});
 }

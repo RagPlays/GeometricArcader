@@ -1,7 +1,5 @@
 #include "FlyFishUtils.h"
 
-#include <Engine.h>
-
 #include "FlyFish.h"
 
 // Variables //
@@ -22,16 +20,37 @@ bool FlyFishUtils::IsVerticalPlane(const Vector& plane)
 }
 
 // Checks if the plane is vertical, meaning it has a non-zero e2 component and zero e1 and e3 components.
-bool FlyFishUtils::IsHorzontalPlane(const Vector& plane)
+bool FlyFishUtils::IsHorizontalPlane(const Vector& plane)
 {
 	constexpr float epsilon{ 1e-6f };
 	// Plane should be close to 0*e1 + 1*e2 + 0*e3
 	return (std::fabs(plane.e1()) < epsilon && std::fabs(plane.e2()) > epsilon && std::fabs(plane.e3()) < epsilon);
 }
 
+void FlyFishUtils::ScaleTranslator(Motor& translator, float scale)
+{
+	translator.e01() *= scale;
+	translator.e02() *= scale;
+	translator.e03() *= scale;
+}
+
+Motor FlyFishUtils::GetScaledTranslator(const Motor& translator, float scale)
+{
+	Motor scaledTranslator{ translator };
+	scaledTranslator.e01() *= scale;
+	scaledTranslator.e02() *= scale;
+	scaledTranslator.e03() *= scale;
+	return scaledTranslator;
+}
+
 void FlyFishUtils::Translate(Vector& plane, float distance)
 {
 	plane.e0() -= distance; // (-) because n = n^ + n0(-e0) -> (-e0)
+}
+
+void FlyFishUtils::Translate(TriVector& point, const Motor& translator)
+{
+	point = (translator * point * ~translator).Grade3();
 }
 
 void FlyFishUtils::Translate(TriVector& point, const glm::vec3& direction, float distance)
