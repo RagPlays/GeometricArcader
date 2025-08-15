@@ -160,6 +160,14 @@ namespace Engine
 
             if (props.fullScreen && monitor && videoMode)
             {
+                // If starting fullscreen, prepare reasonable restore values for when we exit fullscreen
+                const int centerX{ (videoMode->width - static_cast<int>(m_Data.width)) / 2 };
+                const int centerY{ (videoMode->height - static_cast<int>(m_Data.height)) / 2 };
+                m_LastWindowedPosX = centerX;
+                m_LastWindowedPosY = centerY;
+                m_LastWindowedSizeX = static_cast<int>(m_Data.width);
+                m_LastWindowedSizeY = static_cast<int>(m_Data.height);
+
                 //VideoMode width and height is the actual size of you monitor
                 m_Data.fullScreen = props.fullScreen;
                 m_Data.width = static_cast<uint32_t>(videoMode->width);

@@ -63,7 +63,7 @@ void MainLayer::OnImGuiRender()
 
 	const ImGuiViewport* const mainViewport{ ImGui::GetMainViewport() };
 	ImGui::SetNextWindowPos(ImVec2{ mainViewport->Pos.x + 10.f, mainViewport->Pos.y + 10.f }, ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(300.f, 330.f), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(300.f, 350.f), ImGuiCond_Always);
 	ImGui::SetNextWindowViewport(mainViewport->ID);
 
 	const auto flags
@@ -81,7 +81,9 @@ void MainLayer::OnImGuiRender()
 		ImGui::SetWindowFontScale(imGuiFontScale);
 		ImGui::Text("General Stats:");
 		ImGui::Text("FPS: %f", lastFPS);
+		ImGui::Text("VSync: %s", m_Window.IsVSync() ? "On" : "Off");
 
+		ImGui::Spacing();
 		ImGui::Spacing();
 
 		ImGui::Text("Renderer2D Stats:");
