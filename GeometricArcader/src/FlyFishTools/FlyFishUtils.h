@@ -34,6 +34,7 @@ public:
 
 	static void ScaleTranslator(Motor& translator, float scale);
 	static Motor GetScaledTranslator(const Motor& translator, float scale);
+	static Motor GetTranslator(const glm::vec3& direction, float distance);
 
     // Plane translation
     static void Translate(Vector& plane, float distance);

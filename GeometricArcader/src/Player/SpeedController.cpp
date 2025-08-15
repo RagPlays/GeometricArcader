@@ -58,3 +58,8 @@ void SpeedController::Render() const
 	}
 	Renderer2D::DrawFilledRect(glm::vec3{ renderPos, barRenderLayer + 1 }, fullBarSize);
 }
+
+SpeedController::ControllerState SpeedController::GetCurrentState() const
+{
+	return m_currentState;
+}

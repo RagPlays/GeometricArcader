@@ -6,30 +6,24 @@
 using namespace Engine;
 
 Player::Player()
-	: m_Position{ 0.f, 0.f, 0.f }
+	: m_Position{ 0.f, 0.f, 50.f } // 50 is the initial energy
+	, m_Size{ 50.f, 50.f }
 	, m_Velocity{}
-	, m_Size{ 50.f, 150.f }
 	, m_EnergyGain{ 5.f }
 	, m_MaxEnergy{ 100.f }
+	, m_Acceleration{ 1000.f } // units/s^2
+	, m_BaseSpeed{ 500.f }
+	, m_MinimumSpeed{ 100.f }
 	, m_EnergyBar{ UIAnchor::LeftBottom, { 30.f, 30.f }, { 500.f, 50.f } }
 	, m_SpeedController{}
 {
+	ENGINE_ASSERT_MSG(m_BaseSpeed > m_MinimumSpeed, "Base Speed must be greater than Minimum Speed");
 
 	// Setup energy
-	m_Position.e021() = 50.f;
-	m_EnergyBar.SetValue(0.f);
+	m_EnergyBar.SetValue(m_Position.e021());
 	m_EnergyBar.SetMaxValue(m_MaxEnergy);
 
-	const BiVector xMoveLine{ 1.f, 0.f, 0.f, 0.f, 0.f, 0.f };
-	const BiVector yMoveLine{ 0.f, 1.f, 0.f, 0.f, 0.f, 0.f };
-	
-	constexpr float maxSpeed{ 500.f };
-	const bool randomVelDirX{ Random::Bool() };
-	const bool randomVelDirY{ Random::Bool() };
-	const float randomVelX{ Random::Range(300.f, maxSpeed) * (randomVelDirX ? -1.f : 1.f) };
-	const float randomVelY{ Random::Range(300.f, maxSpeed) * (randomVelDirY ? -1.f : 1.f) };
-
-	m_Velocity = Motor{ 1.f, randomVelX, randomVelY, 0.f, 0.f, 0.f, 0.f, 0.f };
+	m_Velocity = FlyFishUtils::GetTranslator(glm::vec3{ 0.f, 1.f, 0.f}, m_BaseSpeed);
 }
 
 void Player::OnEvent(Event& e)
@@ -38,10 +32,13 @@ void Player::OnEvent(Event& e)
 
 void Player::Update(const BorderCollision& coll, float deltaTime)
 {
+	m_SpeedController.Update();
 	UpdateEnergy(deltaTime);
 	m_EnergyBar.SetValue(m_Position.e021());
-	m_SpeedController.Update();
-	UpdateMovement(deltaTime);
+	
+	UpdateVelocity(deltaTime);
+	UpdatePosition(deltaTime);
+
 	UpdateCollision(coll);
 }
 
@@ -58,7 +55,6 @@ void Player::Render() const
 	m_SpeedController.Render();
 }
 
-// Getters //
 const TriVector& Player::GetPosition() const
 {
 	return m_Position;
@@ -83,7 +79,31 @@ void Player::UpdateEnergy(float deltaTime)
 	m_Position.e021() = std::clamp(m_Position.e021(), 0.f, m_MaxEnergy);
 }
 
-void Player::UpdateMovement(float deltaTime)
+void Player::UpdateVelocity(float deltaTime)
+{
+	const auto moveState{ m_SpeedController.GetCurrentState() };
+	if (moveState == SpeedController::ControllerState::NEUTRAL) return;
+
+	// Determine acceleration direction (Acceleration/Deceleration)
+	const float accSign{ moveState == SpeedController::ControllerState::REVERSE ? -1.f : 1.f };
+	
+	// Scale To VNorm to get "forward" then Scale to the wanted speed gain * deltaTime
+	float totalScale{ (1.f / m_Velocity.VNorm()) * accSign * (m_Acceleration * 0.5f) * deltaTime };
+	Motor accMotor{ m_Velocity };
+	FlyFishUtils::ScaleTranslator(accMotor, totalScale);
+
+	// Accelerate / Decelerate the velocity
+	m_Velocity = accMotor * m_Velocity;
+
+	// Enforce Minimum Speed
+	float newSpeed{ m_Velocity.VNorm() };
+	if (newSpeed < m_MinimumSpeed)
+	{
+		FlyFishUtils::ScaleTranslator(m_Velocity, m_MinimumSpeed / newSpeed);
+	}
+}
+
+void Player::UpdatePosition(float deltaTime)
 {
 	Motor deltaTranslator{ FlyFishUtils::GetScaledTranslator(m_Velocity, deltaTime) };
 	FlyFishUtils::Translate(m_Position, deltaTranslator);
@@ -101,7 +121,5 @@ void Player::UpdateCollision(const BorderCollision& coll)
 		if (!collision.HasCollision()) continue; // Extra check (should always be true here)
 		const Vector& collidedPlane{ *collision.CollidedPlane };
 		m_Velocity = MultiVector{ collidedPlane * m_Velocity * ~collidedPlane }.ToMotor();
-
-		FlyFishUtils::ScaleTranslator(m_Velocity, 1.02f);
 	}
 }

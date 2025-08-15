@@ -25,10 +25,7 @@ public:
 	void Update();
 	void Render() const;
 
-	ControllerState GetCurrentState() const
-	{
-		return m_currentState;
-	}
+	ControllerState GetCurrentState() const;
 
 private:
 

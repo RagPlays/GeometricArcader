@@ -43,6 +43,22 @@ Motor FlyFishUtils::GetScaledTranslator(const Motor& translator, float scale)
 	return scaledTranslator;
 }
 
+Motor FlyFishUtils::GetTranslator(const glm::vec3& direction, float distance)
+{
+	const float halfDist{ distance * 0.5f };
+	return Motor
+	{
+		1.f,
+		direction.x * halfDist,
+		direction.y * halfDist,
+		direction.z * halfDist,
+		0.f,
+		0.f,
+		0.f,
+		0.f
+	};
+}
+
 void FlyFishUtils::Translate(Vector& plane, float distance)
 {
 	plane.e0() -= distance; // (-) because n = n^ + n0(-e0) -> (-e0)

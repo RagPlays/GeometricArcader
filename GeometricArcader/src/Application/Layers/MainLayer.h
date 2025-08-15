@@ -4,7 +4,8 @@
 #include <Engine.h>
 
 #include "Camera/DefaultCamera.h"
-#include "Application/Game.h"
+
+class Game;
 
 class MainLayer final : public Engine::Layer
 {

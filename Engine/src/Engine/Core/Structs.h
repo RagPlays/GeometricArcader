@@ -1,8 +1,9 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#include <glm/glm.hpp>
-#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Engine
 {

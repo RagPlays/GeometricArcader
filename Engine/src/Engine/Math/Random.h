@@ -3,100 +3,57 @@
 
 #include <random>
 #include <type_traits>
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-#include <glm/gtc/random.hpp>
 
-class Random final
+#include <glm/fwd.hpp> // forward declarations
+
+namespace Engine
 {
-public:
-
-    // ----- Generic Range -----
-    template<typename T>
-    static T Range(T min, T max)
+    class Random final
     {
-        static_assert(std::is_arithmetic<T>::value, "Random::Range requires a numeric type");
+    public:
 
-        if constexpr (std::is_integral<T>::value)
+        // ----- Generic Range -----
+        template<typename T>
+        static T Range(T min, T max)
         {
-            std::uniform_int_distribution<T> dist(min, max);
-            return dist(m_Randomizer);
+            static_assert(std::is_arithmetic<T>::value, "Random::Range requires a numeric type");
+
+            if constexpr (std::is_integral<T>::value)
+            {
+                std::uniform_int_distribution<T> dist(min, max);
+                return dist(m_Randomizer);
+            }
+            else
+            {
+                std::uniform_real_distribution<T> dist(min, max);
+                return dist(m_Randomizer);
+            }
         }
-        else
-        {
-            std::uniform_real_distribution<T> dist(min, max);
-            return dist(m_Randomizer);
-        }
-    }
 
-    // ----- Boolean -----
-    static bool Bool()
-    {
-        std::bernoulli_distribution dist(0.5);
-        return dist(m_Randomizer);
-    }
+        // ----- Boolean -----
+        static bool Bool();
 
-    // ----- 2D/3D/4D Vectors -----
-    static glm::vec2 Vec2(float min = 0.0f, float max = 1.0f)
-    {
-        return glm::vec2(Range(min, max), Range(min, max));
-    }
+        // ----- 2D/3D/4D Vectors -----
+        static glm::vec2 Vec2(float min = 0.0f, float max = 1.0f);
+        static glm::vec3 Vec3(float min = 0.0f, float max = 1.0f);
+        static glm::vec4 Vec4(float min = 0.0f, float max = 1.0f);
 
-    static glm::vec3 Vec3(float min = 0.0f, float max = 1.0f) {
-        return glm::vec3(Range(min, max), Range(min, max), Range(min, max));
-    }
+        // ----- Normalized direction vectors -----
+        static glm::vec2 Direction2D();
+        static glm::vec3 Direction3D();
 
-    static glm::vec4 Vec4(float min = 0.0f, float max = 1.0f)
-    {
-        return glm::vec4(Range(min, max), Range(min, max), Range(min, max), Range(min, max));
-    }
+        // ----- Random colors (RGB) -----
+        static glm::vec4 ColorRGBA();
+        static glm::vec4 ColorRGBA(float alpha);
+        static glm::vec4 ColorRGB();
 
-    // ----- Normalized direction vectors -----
-    static glm::vec2 Direction2D()
-    {
-        const float angle{ Range(0.0f, glm::two_pi<float>()) };
-        return glm::vec2(glm::cos(angle), glm::sin(angle));
-    }
+        // ----- Seed manually -----
+        static void Seed(unsigned int seed);
 
-    static glm::vec3 Direction3D()
-    {
-        const float theta{ Range(0.0f, glm::two_pi<float>()) };
-        const float phi{ Range(0.0f, glm::pi<float>()) };
-        const float x{ glm::sin(phi) * glm::cos(theta) };
-        const float y{ glm::sin(phi) * glm::sin(theta) };
-        const float z{ glm::cos(phi) };
-        return glm::vec3{ x, y, z };
-    }
+    private:
 
-    // ----- Random colors (RGB) -----
-    static glm::vec4 ColorRGBA()
-    {
-        return Vec4(0.0f, 1.f);
-    }
-
-    static glm::vec4 ColorRGBA(float alpha)
-    {
-        glm::vec4 color{ ColorRGBA() };
-        color.a = alpha;
-        return color;
-	}
-
-    static glm::vec4 ColorRGB()
-    {
-        glm::vec4 color{ ColorRGBA() };
-        color.a = 1.f;
-        return color;
-    }
-
-    // ----- Seed manually -----
-    static void Seed(unsigned int seed)
-    {
-        m_Randomizer.seed(seed);
-    }
-
-private:
-
-    inline static std::mt19937 m_Randomizer{ std::random_device{}() };
-};
+        static std::mt19937 m_Randomizer;
+    };
+}
 
 #endif // !RANDOM_H

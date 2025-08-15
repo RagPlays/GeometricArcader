@@ -2,6 +2,8 @@
 
 #include <imgui/imgui.h>
 
+#include "Application/Game.h"
+
 using namespace Engine;
 
 MainLayer::MainLayer()

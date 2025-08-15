@@ -35,17 +35,22 @@ public:
 private:
 
 	void UpdateEnergy(float deltaTime);
-	void UpdateMovement(float deltaTime);
+	void UpdateVelocity(float deltaTime);
+	void UpdatePosition(float deltaTime);
 	void UpdateCollision(const BorderCollision& coll);
 
 private:
 
 	TriVector m_Position;
-	Motor m_Velocity; // Transformer
 	glm::vec2 m_Size;
+	Motor m_Velocity; // Transformer
 
 	const float m_EnergyGain;
 	const float m_MaxEnergy;
+
+	const float m_Acceleration;
+	const float m_BaseSpeed;
+	const float m_MinimumSpeed;
 
 	ProgressBar m_EnergyBar;
 	SpeedController m_SpeedController;
