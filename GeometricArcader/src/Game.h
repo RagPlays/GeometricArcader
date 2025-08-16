@@ -5,7 +5,7 @@
 
 #include "Collision/BorderCollision.h"
 #include "Entities/Player/Player.h"
-#include "Entities/Enemy/Enemy.h"
+#include "Pickups/Pickup.h"
 
 class Game final
 {
@@ -26,15 +26,11 @@ public:
 
 private:
 
-	void CreateEnemies();
-
-private:
-
 	Engine::Window& m_Window;
 	BorderCollision m_BorderCollision;
 	Player m_Player;
 
-	std::vector<Enemy> m_Enemies;
+	std::vector<Pickup> m_Pickups;
 	
 };
 

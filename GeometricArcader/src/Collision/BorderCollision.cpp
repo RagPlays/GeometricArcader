@@ -12,7 +12,7 @@ BorderCollision::BorderCollision(uint32_t borderOffset)
 	{
 		Vector{ /*e0*/0.f, /*e1*/1.0f,  /*e2*/0.0f,  /*e3*/0.0f },	// plane normal -> right
 		Vector{ /*e0*/0.f, /*e1*/-1.0f, /*e2*/0.0f,  /*e3*/0.0f },	// plane normal -> left
-		Vector{ /*e0*/0.f, /*e1*/0.0f,  /*e2*/1.0f,  /*e3*/0.0f },	// plane normal -> up
+		Vector{ /*e0*/0.f, /*e1*/0.0f,  /*e2*/1.0f,  /*e3*/0.0f },	// plane normal -> top
 		Vector{ /*e0*/0.f, /*e1*/0.0f,  /*e2*/-1.0f, /*e3*/0.0f }	// plane normal -> down
 	}
 {

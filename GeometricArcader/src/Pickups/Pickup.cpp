@@ -8,7 +8,7 @@ using namespace Engine;
 Pickup::Pickup()
 	: m_Window{ Application::Get().GetWindow() }
 	, m_Position{}
-	, m_Size{ 10.f, 10.f }
+	, m_Size{ 15.f, 15.f }
 {
 	RandomizePosition();
 }

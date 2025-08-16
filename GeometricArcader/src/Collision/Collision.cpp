@@ -4,18 +4,16 @@
 #include "FlyFish.h"
 #include "FlyFishTools/FlyFishUtils.h"
 
-static bool HasCollision(const TriVector& pos1, const glm::vec2& size1, const TriVector& pos2, const glm::vec2& size2)
+bool Collision::HasCollision(const TriVector& pos1, const glm::vec2& size1, const TriVector& pos2, const glm::vec2& size2)
 {
-    const float half1x{ size1.x * 0.5f };
-    const float half1y{ size1.y * 0.5f };
-    const float half2x{ size2.x * 0.5f };
-    const float half2y{ size2.y * 0.5f };
+    const glm::vec2 half1{ size1 * 0.5f };
+    const glm::vec2 half2{ size2 * 0.5f };
 
-    return (std::abs(pos1.e032() - pos2.e032()) <= (half1x + half2x) &&
-        std::abs(pos1.e013() - pos2.e013()) <= (half1y + half2y));
+    return (std::abs(pos1.e032() - pos2.e032()) <= (half1.x + half2.x) && std::abs(pos1.e013() - pos2.e013()) <= (half1.y + half2.y));
 }
 
-static bool HasCollisionGEOA(const TriVector& pos1, const glm::vec2& size1, const TriVector& pos2, const glm::vec2& size2)
+// Not working yet //
+bool Collision::HasCollisionGEOA(const TriVector& pos1, const glm::vec2& size1, const TriVector& pos2, const glm::vec2& size2)
 {
     const glm::vec2 half1{ size1 * 0.5f };
     const glm::vec2 half2{ size2 * 0.5f };
@@ -23,10 +21,10 @@ static bool HasCollisionGEOA(const TriVector& pos1, const glm::vec2& size1, cons
     // Planes for rect1 (axis-aligned)
     std::array<Vector, 4> planes
     {
-        Vector{half1.x,  1.0f, 0.0f, 0.0f},   // right
-        Vector{half1.x, -1.0f, 0.0f, 0.0f},   // left
-        Vector{half1.y,  0.0f, 1.0f, 0.0f},   // top
-        Vector{half1.y,  0.0f,-1.0f, 0.0f}    // bottom
+        Vector{ half1.x + pos1.e032(), -1.0f, 0.0f, 0.0f },   // normal: right
+        Vector{ half1.x + pos1.e032(), -1.0f, 0.0f, 0.0f },   // normal: left
+        Vector{ half1.y + pos1.e013(),  0.0f, 1.0f, 0.0f },   // normal: top
+        Vector{ half1.y + pos1.e013(),  0.0f,-1.0f, 0.0f }    // normal: bottom
     };
 
     // Check pos2 against rect1 planes
@@ -38,3 +36,4 @@ static bool HasCollisionGEOA(const TriVector& pos1, const glm::vec2& size1, cons
 
     return true;
 }
+// Not working yet //
