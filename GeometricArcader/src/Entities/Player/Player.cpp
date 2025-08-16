@@ -9,21 +9,21 @@ Player::Player()
 	: m_Position{ 0.f, 0.f, 50.f } // 50 is the initial energy
 	, m_Size{ 50.f, 50.f }
 	, m_Velocity{}
-	, m_EnergyGain{ 5.f }
+	, m_EnergyGain{ 10.f }
 	, m_MaxEnergy{ 100.f }
-	, m_Acceleration{ 1000.f } // units/s^2
-	, m_BaseSpeed{ 500.f }
-	, m_MinimumSpeed{ 100.f }
+	, m_Acceleration{ 2000.f } // units/s^2
+	, m_StartSpeed{ 500.f }
+	, m_MinimumSpeed{ 50.f }
 	, m_EnergyBar{ UIAnchor::LeftBottom, { 30.f, 30.f }, { 500.f, 50.f } }
 	, m_SpeedController{}
 {
-	ENGINE_ASSERT_MSG(m_BaseSpeed > m_MinimumSpeed, "Base Speed must be greater than Minimum Speed");
+	ENGINE_ASSERT_MSG(m_StartSpeed > m_MinimumSpeed, "Base Speed must be greater than Minimum Speed");
 
 	// Setup energy
 	m_EnergyBar.SetValue(m_Position.e021());
 	m_EnergyBar.SetMaxValue(m_MaxEnergy);
 
-	m_Velocity = FlyFishUtils::GetTranslator(glm::vec3{ 0.f, 1.f, 0.f}, m_BaseSpeed);
+	m_Velocity = FlyFishUtils::GetTranslator(glm::vec3{ Random::Direction2D(), 0.f}, m_StartSpeed);
 }
 
 void Player::OnEvent(Event& e)
@@ -72,10 +72,18 @@ const glm::vec2& Player::GetSize() const
 
 void Player::UpdateEnergy(float deltaTime)
 {
-	// Increase By EnergyGain
-	m_Position.e021() += m_EnergyGain * deltaTime; // Increase energy by gain per second
+	// Increase energy passively
+	m_Position.e021() += m_EnergyGain * deltaTime;
 
-	// Clamp
+	// Decrease energy based on speed
+	const float speed{ m_Velocity.VNorm() * 2.f }; // Current Speed
+	const float speedFactor{ (speed - m_MinimumSpeed) / ((m_StartSpeed + m_Acceleration) - m_MinimumSpeed) };
+
+	// To Faster you go the more drain
+	const float energyDrain{ speedFactor * m_EnergyGain * deltaTime };
+	m_Position.e021() -= energyDrain;
+
+	// Clamp energy
 	m_Position.e021() = std::clamp(m_Position.e021(), 0.f, m_MaxEnergy);
 }
 
@@ -84,20 +92,22 @@ void Player::UpdateVelocity(float deltaTime)
 	const auto moveState{ m_SpeedController.GetCurrentState() };
 	if (moveState == SpeedController::ControllerState::NEUTRAL) return;
 
+	const float vnorm{ m_Velocity.VNorm() }; // Safety Check
+	if (vnorm < 1e-5f) return;
+
 	// Determine acceleration direction (Acceleration/Deceleration)
 	const float accSign{ moveState == SpeedController::ControllerState::REVERSE ? -1.f : 1.f };
-	
-	// Scale To VNorm to get "forward" then Scale to the wanted speed gain * deltaTime
-	float totalScale{ (1.f / m_Velocity.VNorm()) * accSign * (m_Acceleration * 0.5f) * deltaTime };
-	Motor accMotor{ m_Velocity };
-	FlyFishUtils::ScaleTranslator(accMotor, totalScale);
+
+	// Scale With VNorm to get "forward", then Scale with the wanted speed gain and deltaTime
+	const float totalScale{ (1.f / vnorm) * accSign * (m_Acceleration * 0.5f) * deltaTime };
+	Motor accMotor{ FlyFishUtils::GetScaledTranslator(m_Velocity, totalScale) };
 
 	// Accelerate / Decelerate the velocity
 	m_Velocity = accMotor * m_Velocity;
 
 	// Enforce Minimum Speed
-	float newSpeed{ m_Velocity.VNorm() };
-	if (newSpeed < m_MinimumSpeed)
+	const float newSpeed{ m_Velocity.VNorm() * 2.f };
+	if (newSpeed * 2.f < m_MinimumSpeed)
 	{
 		FlyFishUtils::ScaleTranslator(m_Velocity, m_MinimumSpeed / newSpeed);
 	}

@@ -1,7 +1,6 @@
 #include "BorderCollision.h"
 
 #include "FlyFishTools/FlyFishUtils.h"
-#include "Player/Player.h"
 
 using namespace Engine;
 
@@ -43,25 +42,30 @@ CollisionsData BorderCollision::HandleCollisions(TriVector& entityPos, const glm
 {
 	CollisionsData collsData{};
 	constexpr uint8_t maxHandles{ 2 };
+
 	for (uint8_t handleIdx{}; handleIdx < maxHandles; ++handleIdx)
 	{
 		CollidingData collData{ TryGetCollision(entityPos, entitySize) };
 		if (!collData.HasCollision()) break;
+
 		ResolveCollision(entityPos, entitySize, collData);
 		collsData.Collisions.emplace_back(collData);
 	}
+
 	return collsData;
 }
 
 CollidingData BorderCollision::TryGetCollision(const TriVector& entityPoint, const glm::vec2& entitySize) const
 {
 	const glm::vec2 halfSize{ entitySize * 0.5f };
+	constexpr float epsilon{ 1e-4f }; // To prevent floating point precision issues
 
 	for (const auto& plane : m_BorderPlanes)
 	{
 		const bool horizontalPlane{ FlyFishUtils::IsHorizontalPlane(plane) };
 		const float offsetDistance{ horizontalPlane ? halfSize.y : halfSize.x };
-		if (float signedDistance{ FlyFishUtils::SignedDistanceToPlane(plane, entityPoint) }; signedDistance < offsetDistance)
+
+		if (float signedDistance{ FlyFishUtils::SignedDistanceToPlane(plane, entityPoint) }; signedDistance < offsetDistance - epsilon)
 		{
 			return CollidingData{ signedDistance, &plane };
 		}
@@ -80,10 +84,7 @@ void BorderCollision::ResolveCollision(TriVector& entityPos, const glm::vec2& en
 	const float offsetDist{ horizontalPlane ? halfSize.y : halfSize.x };
 
 	// Projected position on the collision plane
-	TriVector projectedPos{ FlyFishUtils::Projection(entityPos, collPlane) };
-
-	// Setting the position to the edge of the collision plane
-	entityPos = projectedPos;
+	entityPos = FlyFishUtils::Projection(entityPos, collPlane);
 
 	// Translate the entity position away from the collision plane (using normal of the plane)
 	FlyFishUtils::Translate(entityPos, collPlane, offsetDist);

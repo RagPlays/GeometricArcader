@@ -2,7 +2,7 @@
 
 #include <imgui/imgui.h>
 
-#include "Application/Game.h"
+#include "Game.h"
 
 using namespace Engine;
 
@@ -34,7 +34,7 @@ void MainLayer::OnUpdate()
 	m_pGame->Update(timer.GetSeconds());
 
 	Renderer2D::ResetStats();
-	RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.f });
+	RenderCommand::SetClearColor({ 0.05f, 0.05f, 0.05f, 1.f });
 	RenderCommand::Clear();
 
 	Renderer2D::BeginScene(m_Camera.GetCamera());

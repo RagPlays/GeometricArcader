@@ -21,12 +21,12 @@ namespace Engine
             if constexpr (std::is_integral<T>::value)
             {
                 std::uniform_int_distribution<T> dist(min, max);
-                return dist(m_Randomizer);
+                return dist(s_Randomizer);
             }
             else
             {
                 std::uniform_real_distribution<T> dist(min, max);
-                return dist(m_Randomizer);
+                return dist(s_Randomizer);
             }
         }
 
@@ -52,7 +52,7 @@ namespace Engine
 
     private:
 
-        static std::mt19937 m_Randomizer;
+        static std::mt19937 s_Randomizer;
     };
 }
 

@@ -6,13 +6,13 @@
 
 namespace Engine
 {
-    std::mt19937 Random::m_Randomizer{ std::random_device{}() };
+    std::mt19937 Random::s_Randomizer{ std::random_device{}() };
 
     // ----- Boolean -----
     bool Random::Bool()
     {
         std::bernoulli_distribution dist(0.5);
-        return dist(m_Randomizer);
+        return dist(s_Randomizer);
     }
 
     // ----- 2D/3D/4D Vectors -----
@@ -71,6 +71,6 @@ namespace Engine
     // ----- Seed manually -----
     void Random::Seed(unsigned int seed)
     {
-        m_Randomizer.seed(seed);
+        s_Randomizer.seed(seed);
     }
 }

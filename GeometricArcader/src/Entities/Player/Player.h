@@ -49,7 +49,7 @@ private:
 	const float m_MaxEnergy;
 
 	const float m_Acceleration;
-	const float m_BaseSpeed;
+	const float m_StartSpeed;
 	const float m_MinimumSpeed;
 
 	ProgressBar m_EnergyBar;
