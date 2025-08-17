@@ -15,17 +15,20 @@ int main(int argc, char** argv)
 #endif
 
 	ENGINE_PROFILE_BEGIN_SESSION("Startup", "EngineProfile-Startup.json");
-	Engine::Application* app{ Engine::CreateApplication({argc, argv}) };
+	Engine::Application* pApp{ Engine::CreateApplication({argc, argv}) };
 	ENGINE_PROFILE_END_SESSION();
 
 	ENGINE_PROFILE_BEGIN_SESSION("Runtime", "EngineProfile-Runtime.json");
-	app->Run();
+	pApp->Run();
 	ENGINE_PROFILE_END_SESSION();
 
 	ENGINE_PROFILE_BEGIN_SESSION("Shutdown", "EngineProfile-Shutdown.json");
-	delete app;
+	delete pApp;
 	ENGINE_PROFILE_END_SESSION();
 }
+
+#else
+#error "Engine doesnt support current platform!"
 
 #endif
 

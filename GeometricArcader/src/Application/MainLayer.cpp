@@ -9,13 +9,14 @@ using namespace Engine;
 MainLayer::MainLayer()
 	: Layer{ "MainLayer" }
 	, m_Window{ Application::Get().GetWindow() }
-	, m_MinWidth{ 500 }
-	, m_MinHeight{ 500 }
+	, m_MinWidth{ 1080 }
+	, m_MinHeight{ 720 }
 	, m_Camera{}
-	, m_pGame{ new Game{} }
+	, m_Game{ std::make_unique<Game>() }
 	, m_ShowImgui{}
 	, m_RestartGameRequest{}
 {
+	m_Window.SetSizeLimits(m_MinWidth, m_MinHeight);
 }
 
 MainLayer::~MainLayer()
@@ -26,21 +27,19 @@ void MainLayer::OnUpdate()
 {
 	if (m_RestartGameRequest) 
 	{
-		m_pGame.reset(new Game{});
+		m_Game = std::make_unique<Game>();
 		m_RestartGameRequest = false;
 	}
 
 	const FrameTimer& timer{ FrameTimer::Get() };
-	m_pGame->Update(timer.GetSeconds());
+	m_Game->Update(timer.GetSeconds());
 
 	Renderer2D::ResetStats();
-	RenderCommand::SetClearColor({ 0.05f, 0.05f, 0.05f, 1.f });
+	RenderCommand::SetClearColor({ 0.075f, 0.075f, 0.075f, 0.075f });
 	RenderCommand::Clear();
 
 	Renderer2D::BeginScene(m_Camera.GetCamera());
-	{
-		m_pGame->Render();
-	}
+	m_Game->Render();
 	Renderer2D::EndScene();
 }
 
@@ -103,25 +102,10 @@ void MainLayer::OnImGuiRender()
 void MainLayer::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher{ e };
-	dispatcher.Dispatch<WindowResizeEvent>(ENGINE_BIND_EVENT_FN(MainLayer::OnWindowResized));
 	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(MainLayer::OnKeyReleased));
 
 	m_Camera.OnEvent(e);
-	m_pGame->OnEvent(e);
-}
-
-bool MainLayer::OnWindowResized(WindowResizeEvent& event)
-{
-	const unsigned int width{ event.GetWidth() };
-	const unsigned int height{ event.GetHeight() };
-
-	if (width == 0 && height == 0) return false; // Window Is Minimized
-
-	if (width < m_MinWidth || height < m_MinHeight)
-	{
-		m_Window.SetWindowSize(std::max(width, m_MinWidth), std::max(height, m_MinHeight));
-	}
-	return false;
+	m_Game->OnEvent(e);
 }
 
 bool MainLayer::OnKeyReleased(KeyReleasedEvent& e)

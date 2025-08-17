@@ -21,8 +21,6 @@ public:
 
 private:
 
-	// Window Events //
-	bool OnWindowResized(Engine::WindowResizeEvent& event);
 	bool OnKeyReleased(Engine::KeyReleasedEvent& event);
 
 private:
@@ -32,7 +30,7 @@ private:
 	const unsigned int m_MinHeight;
 
 	DefaultCamera m_Camera;
-	std::unique_ptr<Game> m_pGame;
+	std::unique_ptr<Game> m_Game;
 
 	bool m_ShowImgui;
 	bool m_RestartGameRequest;

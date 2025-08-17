@@ -13,7 +13,7 @@
 
 namespace Engine
 {
-	Application* Application::s_Instance{ nullptr };
+	Application* Application::s_pInstance{ nullptr };
 
 	Application::Application()
 		: Application{ WindowProps{} }
@@ -28,16 +28,15 @@ namespace Engine
 	Application::Application(const WindowProps& windowProperties)
 		: m_Window{ nullptr }
 		, m_Running{ true }
-		, m_Minimized{ false }
 #if ENGINE_IMGUI
-		, m_ImguiLayer{ nullptr }
+		, m_pImguiLayer{ nullptr }
 #endif
 	{
 		ENGINE_PROFILE_FUNCTION();
 
 		// Set Application Instance
-		ENGINE_CORE_ASSERT_MSG(!s_Instance, "Application can not be set twice");
-		s_Instance = this;
+		ENGINE_CORE_ASSERT_MSG(!s_pInstance, "Application can not be set twice");
+		s_pInstance = this;
 
 		// Create Window
 		m_Window = Window::Create(windowProperties);
@@ -50,8 +49,8 @@ namespace Engine
 
 #if ENGINE_IMGUI
 		// Set Imgui start layer
-		m_ImguiLayer = new ImGuiLayer{};
-		AddOverlay(m_ImguiLayer);
+		m_pImguiLayer = new ImGuiLayer{};
+		AddOverlay(m_pImguiLayer);
 #endif
 	}
 
@@ -102,13 +101,8 @@ namespace Engine
 	{
 		ENGINE_PROFILE_FUNCTION();
 
-		if (e.GetWidth() == 0 || e.GetHeight() == 0)
+		if (!m_Window->IsMinimized())
 		{
-			m_Minimized = true;
-		}
-		else
-		{
-			m_Minimized = false;
 			Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 		}
 
@@ -130,12 +124,12 @@ namespace Engine
 #if ENGINE_IMGUI
 		ENGINE_PROFILE_FUNCTION();
 
-		m_ImguiLayer->Begin();
+		m_pImguiLayer->Begin();
 		for (auto& layer : m_LayerContainer)
 		{
 			layer->OnImGuiRender();
 		}
-		m_ImguiLayer->End();
+		m_pImguiLayer->End();
 #endif
 	}
 
@@ -151,7 +145,7 @@ namespace Engine
 
 			FrameTimer::Get().Update();
 
-			if (!m_Minimized)
+			if (!m_Window->IsMinimized())
 			{
 				UpdateLayers();
 

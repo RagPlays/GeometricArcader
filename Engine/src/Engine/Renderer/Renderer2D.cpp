@@ -117,16 +117,16 @@ namespace Engine
 		Ref<VertexBuffer> pointVertexBuffer{ nullptr };
 		Ref<Shader> pointShader{ nullptr };
 		uint32_t pointVertexCount{ 0 };
-		PointVertex* pointVertexBufferBase{ nullptr };
-		PointVertex* pointVertexBufferPtr{ nullptr };
+		PointVertex* pPointVertexBufferBase{ nullptr };
+		PointVertex* pPointVertexBufferPtr{ nullptr };
 
 		// -------------- LINES ----------------//
 		Ref<VertexArray> lineVertexArray{ nullptr };
 		Ref<VertexBuffer> lineVertexBuffer{ nullptr };
 		Ref<Shader> lineShader{ nullptr };
 		uint32_t lineVertexCount{ 0 };
-		LineVertex* lineVertexBufferBase{ nullptr };
-		LineVertex* lineVertexBufferPtr{ nullptr };
+		LineVertex* pLineVertexBufferBase{ nullptr };
+		LineVertex* pLineVertexBufferPtr{ nullptr };
 
 		// -------------- QUADS ----------------//
 		constexpr static std::array<glm::vec4, 4> quadVertexPositions
@@ -140,16 +140,16 @@ namespace Engine
 		Ref<VertexBuffer> quadVertexBuffer{ nullptr };
 		Ref<Shader> quadShader{ nullptr };
 		uint32_t quadIndexCount{ 0 };
-		QuadVertex* quadVertexBufferBase{ nullptr };
-		QuadVertex* quadVertexBufferPtr{ nullptr };
+		QuadVertex* pQuadVertexBufferBase{ nullptr };
+		QuadVertex* pQuadVertexBufferPtr{ nullptr };
 
 		// -------------- CIRCLES ----------------//
 		Ref<VertexArray> circleVertexArray{ nullptr };
 		Ref<VertexBuffer> circleVertexBuffer{ nullptr };
 		Ref<Shader> circleShader{ nullptr };
 		uint32_t circleIndexCount{ 0 };
-		CircleVertex* circleVertexBufferBase{ nullptr };
-		CircleVertex* circleVertexBufferPtr{ nullptr };
+		CircleVertex* pCircleVertexBufferBase{ nullptr };
+		CircleVertex* pCircleVertexBufferPtr{ nullptr };
 
 		// -------------- TEXTURES ----------------//
 		Ref<Texture2D> whiteTexture{ nullptr };
@@ -178,7 +178,7 @@ namespace Engine
 		s_Data.pointVertexBuffer->SetLayout(PointVertex::GetBufferLayout());
 		s_Data.pointVertexArray->AddVertexBuffer(s_Data.pointVertexBuffer);
 
-		s_Data.pointVertexBufferBase = new PointVertex[Renderer2DData::maxPointVertices];
+		s_Data.pPointVertexBufferBase = new PointVertex[Renderer2DData::maxPointVertices];
 
 		// -------------- LINES ----------------//
 		s_Data.lineVertexArray = VertexArray::Create();
@@ -187,7 +187,7 @@ namespace Engine
 		s_Data.lineVertexBuffer->SetLayout(LineVertex::GetBufferLayout());
 		s_Data.lineVertexArray->AddVertexBuffer(s_Data.lineVertexBuffer);
 
-		s_Data.lineVertexBufferBase = new LineVertex[Renderer2DData::maxLineVertices];
+		s_Data.pLineVertexBufferBase = new LineVertex[Renderer2DData::maxLineVertices];
 
 		// -------------- QUADS ----------------//
 		s_Data.quadVertexArray = VertexArray::Create();
@@ -196,25 +196,25 @@ namespace Engine
 		s_Data.quadVertexBuffer->SetLayout(QuadVertex::GetBufferLayout());
 		s_Data.quadVertexArray->AddVertexBuffer(s_Data.quadVertexBuffer);
 
-		s_Data.quadVertexBufferBase = new QuadVertex[Renderer2DData::maxQuadVertices];
+		s_Data.pQuadVertexBufferBase = new QuadVertex[Renderer2DData::maxQuadVertices];
 
-		uint32_t* quadIndices{ new uint32_t[Renderer2DData::maxQuadIndices] };
+		uint32_t* pQuadIndices{ new uint32_t[Renderer2DData::maxQuadIndices] };
 		uint32_t offset{};
 		for (size_t idx{}; idx < Renderer2DData::maxQuadIndices; idx += 6)
 		{
-			quadIndices[idx + 0] = offset + 0;
-			quadIndices[idx + 1] = offset + 1;
-			quadIndices[idx + 2] = offset + 2;
+			pQuadIndices[idx + 0] = offset + 0;
+			pQuadIndices[idx + 1] = offset + 1;
+			pQuadIndices[idx + 2] = offset + 2;
 
-			quadIndices[idx + 3] = offset + 2;
-			quadIndices[idx + 4] = offset + 3;
-			quadIndices[idx + 5] = offset + 0;
+			pQuadIndices[idx + 3] = offset + 2;
+			pQuadIndices[idx + 4] = offset + 3;
+			pQuadIndices[idx + 5] = offset + 0;
 
 			offset += 4;
 		}
-		const Ref<IndexBuffer> quadIB{ IndexBuffer::Create(quadIndices, Renderer2DData::maxQuadIndices) };
+		const Ref<IndexBuffer> quadIB{ IndexBuffer::Create(pQuadIndices, Renderer2DData::maxQuadIndices) };
 		s_Data.quadVertexArray->SetIndexBuffer(quadIB);
-		delete[] quadIndices;
+		delete[] pQuadIndices;
 
 		// -------------- CIRCLES ----------------//
 		s_Data.circleVertexArray = VertexArray::Create();
@@ -224,7 +224,7 @@ namespace Engine
 		s_Data.circleVertexArray->AddVertexBuffer(s_Data.circleVertexBuffer);
 		s_Data.circleVertexArray->SetIndexBuffer(quadIB);
 
-		s_Data.circleVertexBufferBase = new CircleVertex[Renderer2DData::maxCircleVertices];
+		s_Data.pCircleVertexBufferBase = new CircleVertex[Renderer2DData::maxCircleVertices];
 
 		// -------------- TEXTURES ----------------//
 		// 1x1 white pixel texture
@@ -316,9 +316,9 @@ namespace Engine
 	{
 		if (s_Data.pointVertexCount >= Renderer2DData::maxPointVertices) NextPointBatch();
 
-		s_Data.pointVertexBufferPtr->position = position;
-		s_Data.pointVertexBufferPtr->color = s_Data.drawColor;
-		s_Data.pointVertexBufferPtr++;
+		s_Data.pPointVertexBufferPtr->position = position;
+		s_Data.pPointVertexBufferPtr->color = s_Data.drawColor;
+		s_Data.pPointVertexBufferPtr++;
 
 		++s_Data.pointVertexCount;
 
@@ -334,9 +334,9 @@ namespace Engine
 
 		for (const glm::ivec2& point : points)
 		{
-			s_Data.pointVertexBufferPtr->position = glm::vec3{ static_cast<glm::vec2>(point), 0.f };
-			s_Data.pointVertexBufferPtr->color = s_Data.drawColor;
-			s_Data.pointVertexBufferPtr++;
+			s_Data.pPointVertexBufferPtr->position = glm::vec3{ static_cast<glm::vec2>(point), 0.f };
+			s_Data.pPointVertexBufferPtr->color = s_Data.drawColor;
+			s_Data.pPointVertexBufferPtr++;
 		}
 
 		s_Data.pointVertexCount += pointCount;
@@ -353,9 +353,9 @@ namespace Engine
 
 		for (const glm::ivec3& point : points)
 		{
-			s_Data.pointVertexBufferPtr->position = static_cast<glm::vec3>(point);
-			s_Data.pointVertexBufferPtr->color = s_Data.drawColor;
-			s_Data.pointVertexBufferPtr++;
+			s_Data.pPointVertexBufferPtr->position = static_cast<glm::vec3>(point);
+			s_Data.pPointVertexBufferPtr->color = s_Data.drawColor;
+			s_Data.pPointVertexBufferPtr++;
 		}
 
 		s_Data.pointVertexCount += pointCount;
@@ -372,9 +372,9 @@ namespace Engine
 
 		for (const glm::vec2& point : points)
 		{
-			s_Data.pointVertexBufferPtr->position = glm::vec3{ point, 0.f };
-			s_Data.pointVertexBufferPtr->color = s_Data.drawColor;
-			s_Data.pointVertexBufferPtr++;
+			s_Data.pPointVertexBufferPtr->position = glm::vec3{ point, 0.f };
+			s_Data.pPointVertexBufferPtr->color = s_Data.drawColor;
+			s_Data.pPointVertexBufferPtr++;
 		}
 
 		s_Data.pointVertexCount += pointCount;
@@ -391,9 +391,9 @@ namespace Engine
 
 		for (const glm::vec3& point : points)
 		{
-			s_Data.pointVertexBufferPtr->position = point;
-			s_Data.pointVertexBufferPtr->color = s_Data.drawColor;
-			s_Data.pointVertexBufferPtr++;
+			s_Data.pPointVertexBufferPtr->position = point;
+			s_Data.pPointVertexBufferPtr->color = s_Data.drawColor;
+			s_Data.pPointVertexBufferPtr++;
 		}
 
 		s_Data.pointVertexCount += pointCount;
@@ -423,13 +423,13 @@ namespace Engine
 	{
 		if (s_Data.lineVertexCount >= Renderer2DData::maxLineVertices) NextLineBatch();
 
-		s_Data.lineVertexBufferPtr->position = p0;
-		s_Data.lineVertexBufferPtr->color = s_Data.drawColor;
-		s_Data.lineVertexBufferPtr++;
+		s_Data.pLineVertexBufferPtr->position = p0;
+		s_Data.pLineVertexBufferPtr->color = s_Data.drawColor;
+		s_Data.pLineVertexBufferPtr++;
 
-		s_Data.lineVertexBufferPtr->position = p1;
-		s_Data.lineVertexBufferPtr->color = s_Data.drawColor;
-		s_Data.lineVertexBufferPtr++;
+		s_Data.pLineVertexBufferPtr->position = p1;
+		s_Data.pLineVertexBufferPtr->color = s_Data.drawColor;
+		s_Data.pLineVertexBufferPtr++;
 
 		s_Data.lineVertexCount += 2;
 
@@ -575,12 +575,12 @@ namespace Engine
 
 		for (size_t vertIdx{}; vertIdx < quadVertexCount; ++vertIdx)
 		{
-			s_Data.quadVertexBufferPtr->position = modelMatrix * s_Data.quadVertexPositions[vertIdx];
-			s_Data.quadVertexBufferPtr->color = s_Data.drawColor;
-			s_Data.quadVertexBufferPtr->texCoord = textureCoords[vertIdx];
-			s_Data.quadVertexBufferPtr->texIndex = whitePixelTextureIdx;
-			s_Data.quadVertexBufferPtr->tilingFactor = defaultTilingFactor;
-			++s_Data.quadVertexBufferPtr;
+			s_Data.pQuadVertexBufferPtr->position = modelMatrix * s_Data.quadVertexPositions[vertIdx];
+			s_Data.pQuadVertexBufferPtr->color = s_Data.drawColor;
+			s_Data.pQuadVertexBufferPtr->texCoord = textureCoords[vertIdx];
+			s_Data.pQuadVertexBufferPtr->texIndex = whitePixelTextureIdx;
+			s_Data.pQuadVertexBufferPtr->tilingFactor = defaultTilingFactor;
+			++s_Data.pQuadVertexBufferPtr;
 		}
 		s_Data.quadIndexCount += 6;
 
@@ -620,12 +620,12 @@ namespace Engine
 
 		for (size_t vertexIdx{}; vertexIdx < 4; vertexIdx++)
 		{
-			s_Data.circleVertexBufferPtr->worldPosition = modelMatrix * s_Data.quadVertexPositions[vertexIdx];
-			s_Data.circleVertexBufferPtr->localPosition = s_Data.quadVertexPositions[vertexIdx] * 2.0f;
-			s_Data.circleVertexBufferPtr->color = s_Data.drawColor;
-			s_Data.circleVertexBufferPtr->thickness = thickness;
-			s_Data.circleVertexBufferPtr->fade = fade;
-			s_Data.circleVertexBufferPtr++;
+			s_Data.pCircleVertexBufferPtr->worldPosition = modelMatrix * s_Data.quadVertexPositions[vertexIdx];
+			s_Data.pCircleVertexBufferPtr->localPosition = s_Data.quadVertexPositions[vertexIdx] * 2.0f;
+			s_Data.pCircleVertexBufferPtr->color = s_Data.drawColor;
+			s_Data.pCircleVertexBufferPtr->thickness = thickness;
+			s_Data.pCircleVertexBufferPtr->fade = fade;
+			s_Data.pCircleVertexBufferPtr++;
 		}
 
 		s_Data.circleIndexCount += 6;
@@ -768,12 +768,12 @@ namespace Engine
 
 		for (size_t vertIdx{}; vertIdx < quadVertexCount; ++vertIdx)
 		{
-			s_Data.quadVertexBufferPtr->position = modelMatrix * s_Data.quadVertexPositions[vertIdx];
-			s_Data.quadVertexBufferPtr->color = tintColor;
-			s_Data.quadVertexBufferPtr->texCoord = textureCoords[vertIdx];
-			s_Data.quadVertexBufferPtr->texIndex = textureIdx;
-			s_Data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-			++s_Data.quadVertexBufferPtr;
+			s_Data.pQuadVertexBufferPtr->position = modelMatrix * s_Data.quadVertexPositions[vertIdx];
+			s_Data.pQuadVertexBufferPtr->color = tintColor;
+			s_Data.pQuadVertexBufferPtr->texCoord = textureCoords[vertIdx];
+			s_Data.pQuadVertexBufferPtr->texIndex = textureIdx;
+			s_Data.pQuadVertexBufferPtr->tilingFactor = tilingFactor;
+			++s_Data.pQuadVertexBufferPtr;
 		}
 		s_Data.quadIndexCount += 6;
 
@@ -854,25 +854,25 @@ namespace Engine
 	void Renderer2D::ResetPointBatch()
 	{
 		s_Data.pointVertexCount = 0;
-		s_Data.pointVertexBufferPtr = s_Data.pointVertexBufferBase;
+		s_Data.pPointVertexBufferPtr = s_Data.pPointVertexBufferBase;
 	}
 
 	void Renderer2D::ResetLineBatch()
 	{
 		s_Data.lineVertexCount = 0;
-		s_Data.lineVertexBufferPtr = s_Data.lineVertexBufferBase;
+		s_Data.pLineVertexBufferPtr = s_Data.pLineVertexBufferBase;
 	}
 
 	void Renderer2D::ResetQuadBatch()
 	{
 		s_Data.quadIndexCount = 0;
-		s_Data.quadVertexBufferPtr = s_Data.quadVertexBufferBase;
+		s_Data.pQuadVertexBufferPtr = s_Data.pQuadVertexBufferBase;
 	}
 
 	void Renderer2D::ResetCircleBatch()
 	{
 		s_Data.circleIndexCount = 0;
-		s_Data.circleVertexBufferPtr = s_Data.circleVertexBufferBase;
+		s_Data.pCircleVertexBufferPtr = s_Data.pCircleVertexBufferBase;
 	}
 
 	void Renderer2D::ResetTextureBatch()
@@ -896,10 +896,10 @@ namespace Engine
 			const uint32_t dataSize
 			{
 				static_cast<uint32_t>(
-				reinterpret_cast<uint8_t*>(s_Data.pointVertexBufferPtr) -
-				reinterpret_cast<uint8_t*>(s_Data.pointVertexBufferBase))
+				reinterpret_cast<uint8_t*>(s_Data.pPointVertexBufferPtr) -
+				reinterpret_cast<uint8_t*>(s_Data.pPointVertexBufferBase))
 			};
-			s_Data.pointVertexBuffer->SetData(s_Data.pointVertexBufferBase, dataSize);
+			s_Data.pointVertexBuffer->SetData(s_Data.pPointVertexBufferBase, dataSize);
 
 			s_Data.pointShader->Bind();
 			RenderCommand::SetPointSize(s_Data.pointSize);
@@ -918,10 +918,10 @@ namespace Engine
 			const uint32_t dataSize
 			{
 				static_cast<uint32_t>(
-				reinterpret_cast<uint8_t*>(s_Data.lineVertexBufferPtr) -
-				reinterpret_cast<uint8_t*>(s_Data.lineVertexBufferBase))
+				reinterpret_cast<uint8_t*>(s_Data.pLineVertexBufferPtr) -
+				reinterpret_cast<uint8_t*>(s_Data.pLineVertexBufferBase))
 			};
-			s_Data.lineVertexBuffer->SetData(s_Data.lineVertexBufferBase, dataSize);
+			s_Data.lineVertexBuffer->SetData(s_Data.pLineVertexBufferBase, dataSize);
 
 			s_Data.lineShader->Bind();
 			RenderCommand::SetLineWidth(s_Data.lineWidth);
@@ -940,10 +940,10 @@ namespace Engine
 			const uint32_t dataSize
 			{
 				static_cast<uint32_t>(
-				reinterpret_cast<uint8_t*>(s_Data.quadVertexBufferPtr) -
-				reinterpret_cast<uint8_t*>(s_Data.quadVertexBufferBase))
+				reinterpret_cast<uint8_t*>(s_Data.pQuadVertexBufferPtr) -
+				reinterpret_cast<uint8_t*>(s_Data.pQuadVertexBufferBase))
 			};
-			s_Data.quadVertexBuffer->SetData(s_Data.quadVertexBufferBase, dataSize);
+			s_Data.quadVertexBuffer->SetData(s_Data.pQuadVertexBufferBase, dataSize);
 
 			// Bindings (idx 0 already binded for 1x1 white pixel texture)
 			for (uint32_t textureSlotIdx{ 1 }; textureSlotIdx < s_Data.textureSlotIndex; ++textureSlotIdx)
@@ -967,10 +967,10 @@ namespace Engine
 			const uint32_t dataSize
 			{
 				static_cast<uint32_t>(
-				reinterpret_cast<uint8_t*>(s_Data.circleVertexBufferPtr) -
-				reinterpret_cast<uint8_t*>(s_Data.circleVertexBufferBase))
+				reinterpret_cast<uint8_t*>(s_Data.pCircleVertexBufferPtr) -
+				reinterpret_cast<uint8_t*>(s_Data.pCircleVertexBufferBase))
 			};
-			s_Data.circleVertexBuffer->SetData(s_Data.circleVertexBufferBase, dataSize);
+			s_Data.circleVertexBuffer->SetData(s_Data.pCircleVertexBufferBase, dataSize);
 
 			s_Data.circleShader->Bind();
 			RenderCommand::DrawIndexed(s_Data.circleVertexArray, s_Data.circleIndexCount);

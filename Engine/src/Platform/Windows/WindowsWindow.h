@@ -20,9 +20,28 @@ namespace Engine
 
 		virtual void OnUpdate() override;
 
+		virtual void SetPosition(uint32_t x, uint32_t y) override;
+		virtual uint32_t GetPositionX() const override;
+		virtual uint32_t GetPositionY() const override;
+
+		virtual void Minimize() override;
+		virtual void Maximize() override;
+		virtual void Restore() override;
+		virtual bool IsMinimized() const override;
+		virtual bool IsMaximized() const override;
+
+		virtual bool IsFocused() const override;
+		virtual bool IsHovered() const override;
+
+		virtual void SetResizable(bool resizable) override;
+		virtual void SetSize(uint32_t width, uint32_t height) override;
 		virtual uint32_t GetWidth() const override;
 		virtual uint32_t GetHeight() const override;
-		virtual void SetWindowSize(uint32_t width, uint32_t height) override;
+		virtual void SetSizeLimits(
+			std::optional<uint32_t> minWidth = std::nullopt,
+			std::optional<uint32_t> minHeight = std::nullopt,
+			std::optional<uint32_t> maxWidth = std::nullopt,
+			std::optional<uint32_t> maxHeight = std::nullopt) override;
 
 		virtual void SetFullscreen(bool fullscreen) override;
 		virtual bool IsFullscreen() const override;
@@ -41,12 +60,14 @@ namespace Engine
 		
 	private:
 
-		GLFWwindow* m_Window;
+		GLFWwindow* m_pWindow;
 		std::unique_ptr<GraphicsContext> m_Context;
 
 		struct WindowData
 		{
 			std::string title;
+			uint32_t x;
+			uint32_t y;
 			uint32_t width;
 			uint32_t height;
 			bool vSync;

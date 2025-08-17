@@ -8,23 +8,43 @@ Game::Game()
 	: m_Window{ Application::Get().GetWindow() }
 	, m_BorderCollision{ 0 }
 	, m_Player{}
+	, m_GameTimer{}
 	, m_Pickups{}
 {
 	ENGINE_TRACE("Game Started");
 
-	m_Pickups.resize(20); // Initialize 5 pickups
+	SetupGameTimer();
+
+	m_Pickups.resize(10); // Initialize 10 pickups
 }
 
 void Game::OnEvent(Event& e)
 {
+	EventDispatcher dispatcher{ e };
+	dispatcher.Dispatch<WindowResizeEvent>(ENGINE_BIND_EVENT_FN(Game::OnWindowResize));
+
 	m_BorderCollision.OnEvent(e);
 	m_Player.OnEvent(e);
+	m_GameTimer.OnEvent(e);
 }
 
 void Game::Update(float deltaTime)
 {
 	m_Player.Update(m_BorderCollision, deltaTime);
+	UpdatePickups();
 
+	m_GameTimer.AddValue(deltaTime);
+}
+
+void Game::Render() const
+{
+	m_Player.Render();
+	RenderPickups();
+	m_GameTimer.Render();
+}
+
+void Game::UpdatePickups()
+{
 	const TriVector& playerPos{ m_Player.GetPosition() };
 	const glm::vec2& playerSize{ m_Player.GetSize() };
 
@@ -32,18 +52,38 @@ void Game::Update(float deltaTime)
 	{
 		if (Collision::HasCollision(pickup.GetPosition(), pickup.GetSize(), playerPos, playerSize))
 		{
-			ENGINE_TRACE("Pickup collected!");
 			pickup.RandomizePosition();
 		}
 	}
 }
 
-void Game::Render() const
+void Game::RenderPickups() const
 {
-	m_Player.Render();
-
 	for (const auto& pickup : m_Pickups)
 	{
 		pickup.Render();
 	}
+}
+
+void Game::SetupGameTimer()
+{
+	const glm::vec2 winSize{ static_cast<float>(m_Window.GetWidth()), static_cast<float>(m_Window.GetHeight()) };
+	constexpr float gameDuration{ 30.f };
+
+	m_GameTimer.SetMaxValue(gameDuration);
+
+	m_GameTimer.SetAnchor(UIAnchor::LeftTop);
+	m_GameTimer.SetMargin({ 30.f, 30.f });
+	m_GameTimer.SetSize({ winSize.x - (2.f * m_GameTimer.GetMargin().x), 30.f });
+
+	m_GameTimer.SetOutlineColor(Color::lightGray);
+	m_GameTimer.SetBackgroundColor(Color::darkGray);
+	m_GameTimer.SetValueColor(Color::white);
+}
+
+bool Game::OnWindowResize(Engine::WindowResizeEvent& e)
+{
+	SetupGameTimer();
+
+	return false;
 }

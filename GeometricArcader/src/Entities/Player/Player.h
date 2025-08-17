@@ -5,8 +5,8 @@
 
 #include "FlyFish.h"
 
-#include "EnergyBar.h"
-#include "SpeedController.h"
+#include "UI/General/ProgressBar.h"
+#include "UI/SpeedController.h"
 
 class BorderCollision;
 
@@ -39,11 +39,17 @@ private:
 	void UpdatePosition(float deltaTime);
 	void UpdateCollision(const BorderCollision& coll);
 
+	void UpdateEnergyBar();
+
+	bool OnWindowResize(const Engine::WindowResizeEvent& e);
+
 private:
 
 	TriVector m_Position;
 	glm::vec2 m_Size;
 	Motor m_Velocity; // Transformer
+
+	glm::vec4 m_EnergyRatioColor;
 
 	const float m_EnergyGain;
 	const float m_MaxEnergy;

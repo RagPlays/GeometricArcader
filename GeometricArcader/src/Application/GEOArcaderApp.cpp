@@ -1,6 +1,6 @@
 #include "GEOArcaderApp.h"
 
-#include "Layers/MainLayer.h"
+#include "MainLayer.h"
 
 Engine::Application* Engine::CreateApplication(const ApplicationCommandLineArgs& args)
 {
@@ -12,7 +12,7 @@ GEOArcaderApp::GEOArcaderApp()
 {
 	ENGINE_TRACE("GEOArcaderApp Created");
 
-	AddLayer(new MainLayer{});
+	AddLayer(new MainLayer{}); // Ownership to LayerManager
 }
 
 GEOArcaderApp::~GEOArcaderApp()

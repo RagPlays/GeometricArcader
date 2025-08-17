@@ -8,7 +8,7 @@
 namespace Engine
 {
     // For now init it here, you can set it in init of windowsWindow as well to define multiple input platforms
-    Input* Input::s_Instance{ new WindowsInput{} };
+    Input* Input::s_pInstance{ new WindowsInput{} };
 
     bool WindowsInput::IsKeyPressedImpl(KeyCode key)
     {

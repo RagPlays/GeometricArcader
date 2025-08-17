@@ -23,7 +23,7 @@ namespace Engine
 #endif
 
     WindowsWindow::WindowsWindow(const WindowProps& props)
-        : m_Window{}
+        : m_pWindow{}
         , m_Data{}
     {
         ENGINE_PROFILE_FUNCTION();
@@ -46,6 +46,70 @@ namespace Engine
         m_Context->SwapBuffers();
     }
 
+    void WindowsWindow::SetPosition(uint32_t x, uint32_t y)
+    {
+		m_Data.x = x;
+		m_Data.y = y;
+        glfwSetWindowPos(m_pWindow, static_cast<uint32_t>(x), static_cast<uint32_t>(y));
+    }
+
+    uint32_t WindowsWindow::GetPositionX() const
+    {
+        return m_Data.x;
+    }
+
+    uint32_t WindowsWindow::GetPositionY() const
+    {
+        return m_Data.y;
+    }
+
+    void WindowsWindow::Minimize()
+    {
+        glfwIconifyWindow(m_pWindow);
+    }
+
+    void WindowsWindow::Maximize()
+    {
+        glfwMaximizeWindow(m_pWindow);
+    }
+
+    void WindowsWindow::Restore()
+    {
+        glfwRestoreWindow(m_pWindow);
+    }
+
+    bool WindowsWindow::IsMinimized() const
+    {
+        return glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED) == GLFW_TRUE;
+    }
+
+    bool WindowsWindow::IsMaximized() const
+    {
+        return glfwGetWindowAttrib(m_pWindow, GLFW_MAXIMIZED) == GLFW_TRUE;
+    }
+
+    bool WindowsWindow::IsFocused() const
+    {
+        return glfwGetWindowAttrib(m_pWindow, GLFW_FOCUSED) == GLFW_TRUE;
+    }
+
+    bool WindowsWindow::IsHovered() const
+    {
+        return glfwGetWindowAttrib(m_pWindow, GLFW_HOVERED) == GLFW_TRUE;
+    }
+
+    void WindowsWindow::SetResizable(bool resizable)
+    {
+        glfwSetWindowAttrib(m_pWindow, GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
+    }
+
+    void WindowsWindow::SetSize(uint32_t width, uint32_t height)
+    {
+        m_Data.width = width;
+        m_Data.height = height;
+        glfwSetWindowSize(m_pWindow, static_cast<int>(width), static_cast<int>(height));
+    }
+
     uint32_t WindowsWindow::GetWidth() const
     {
         return m_Data.width;
@@ -56,11 +120,14 @@ namespace Engine
         return m_Data.height;
     }
 
-    void WindowsWindow::SetWindowSize(uint32_t width, uint32_t height)
+    void WindowsWindow::SetSizeLimits(std::optional<uint32_t> minWidth, std::optional<uint32_t> minHeight, std::optional<uint32_t> maxWidth, std::optional<uint32_t> maxHeight)
     {
-        m_Data.width = width;
-        m_Data.height = height;
-        glfwSetWindowSize(m_Window, static_cast<int>(width), static_cast<int>(height));
+        const int minW{ minWidth.has_value() ? static_cast<int>(*minWidth) : GLFW_DONT_CARE };
+        const int minH{ minHeight.has_value() ? static_cast<int>(*minHeight) : GLFW_DONT_CARE };
+        const int maxW{ maxWidth.has_value() ? static_cast<int>(*maxWidth) : GLFW_DONT_CARE };
+        const int maxH{ maxHeight.has_value() ? static_cast<int>(*maxHeight) : GLFW_DONT_CARE };
+
+        glfwSetWindowSizeLimits(m_pWindow, minW, minH, maxW, maxH);
     }
 
     void WindowsWindow::SetFullscreen(bool fullscreen)
@@ -68,24 +135,30 @@ namespace Engine
         if (m_Data.fullScreen == fullscreen) return;
         m_Data.fullScreen = fullscreen;
 
+        GLFWmonitor* const monitor{ glfwGetPrimaryMonitor() };
+        ENGINE_CORE_ASSERT_MSG(monitor, "Failed to get primary monitor!");
+
+        const GLFWvidmode* const videoMode{ glfwGetVideoMode(monitor) };
+        ENGINE_CORE_ASSERT_MSG(videoMode, "Failed to get video mode!");
+
+        if (!monitor || !videoMode) return;
+
         if (fullscreen)
         {
-            // Save windowed size
-            glfwGetWindowPos(m_Window, &m_LastWindowedPosX, &m_LastWindowedPosY);
-            glfwGetWindowSize(m_Window, &m_LastWindowedSizeX, &m_LastWindowedSizeY);
+            m_Data.x = 0;
+            m_Data.y = 0;
 
-            GLFWmonitor* const monitor{ glfwGetPrimaryMonitor() };
-            ENGINE_CORE_ASSERT_MSG(monitor, "Failed to get primary monitor!");
+            // Save last windowed position and size
+            glfwGetWindowPos(m_pWindow, &m_LastWindowedPosX, &m_LastWindowedPosY);
+            glfwGetWindowSize(m_pWindow, &m_LastWindowedSizeX, &m_LastWindowedSizeY);
 
-            const GLFWvidmode* const videoMode{ glfwGetVideoMode(monitor) };
-            ENGINE_CORE_ASSERT_MSG(videoMode, "Failed to get video mode!");
-
-            glfwSetWindowMonitor(m_Window, monitor, 0, 0, videoMode->width, videoMode->height, videoMode->refreshRate);
+            glfwSetWindowMonitor(m_pWindow, monitor, 0, 0, videoMode->width, videoMode->height, videoMode->refreshRate);
         }
         else
         {
+            Restore();
             // Restore windowed size & position
-            glfwSetWindowMonitor(m_Window, nullptr, m_LastWindowedPosX, m_LastWindowedPosY, m_LastWindowedSizeX, m_LastWindowedSizeY, 0);
+            glfwSetWindowMonitor(m_pWindow, nullptr, m_LastWindowedPosX, m_LastWindowedPosY, m_LastWindowedSizeX, m_LastWindowedSizeY, videoMode->refreshRate);
         }
     }
 
@@ -113,7 +186,7 @@ namespace Engine
 
     void* WindowsWindow::GetNativeWindow() const
     {
-        return m_Window;
+        return m_pWindow;
     }
 
     void WindowsWindow::Init(const WindowProps& props)
@@ -174,7 +247,7 @@ namespace Engine
                 m_Data.height = static_cast<uint32_t>(videoMode->height);
             }
 
-            m_Window = glfwCreateWindow
+            m_pWindow = glfwCreateWindow
             (
                 static_cast<int>(m_Data.width),
                 static_cast<int>(m_Data.height),
@@ -183,27 +256,27 @@ namespace Engine
                 nullptr
             );
 
-            ENGINE_CORE_ASSERT_MSG(m_Window, "Failed to create GLFW window!");
+            ENGINE_CORE_ASSERT_MSG(m_pWindow, "Failed to create GLFW window!");
 
             // Center Window
             if (!props.fullScreen)
             {
                 int windowWidth{};
                 int windowHeight{};
-                glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
+                glfwGetWindowSize(m_pWindow, &windowWidth, &windowHeight);
 
                 const int posX{ (videoMode->width - windowWidth) / 2 };
                 const int posY{ (videoMode->height - windowHeight) / 2 };
-                glfwSetWindowPos(m_Window, posX, posY);
+                glfwSetWindowPos(m_pWindow, posX, posY);
             }
         }
         ++s_GLFWWindowCount;
 
         // Context
-        m_Context = GraphicsContext::Create(m_Window);
+        m_Context = GraphicsContext::Create(m_pWindow);
         m_Context->Init();
 
-        glfwSetWindowUserPointer(m_Window, &m_Data);
+        glfwSetWindowUserPointer(m_pWindow, &m_Data);
 
         SetVSync(props.vsync);
 
@@ -213,7 +286,7 @@ namespace Engine
     void WindowsWindow::InitCallbacks()
     {
         // Set GLFW callbacks
-        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+        glfwSetWindowSizeCallback(m_pWindow, [](GLFWwindow* window, int width, int height)
         {
             WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
             data.width = static_cast<uint32_t>(width);
@@ -223,7 +296,7 @@ namespace Engine
             data.eventCallback(event);
         });
 
-        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
+        glfwSetWindowCloseCallback(m_pWindow, [](GLFWwindow* window)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
             WindowCloseEvent event{};
@@ -231,7 +304,7 @@ namespace Engine
 
         });
 
-        glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+        glfwSetKeyCallback(m_pWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
 
@@ -258,7 +331,7 @@ namespace Engine
             }
         });
 
-        glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
+        glfwSetCharCallback(m_pWindow, [](GLFWwindow* window, unsigned int keycode)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
 
@@ -266,7 +339,7 @@ namespace Engine
             data.eventCallback(event);
         });
 
-        glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
+        glfwSetMouseButtonCallback(m_pWindow, [](GLFWwindow* window, int button, int action, int mods)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
 
@@ -287,7 +360,7 @@ namespace Engine
             }
         });
 
-        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
+        glfwSetScrollCallback(m_pWindow, [](GLFWwindow* window, double xOffset, double yOffset)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
 
@@ -295,7 +368,7 @@ namespace Engine
             data.eventCallback(event);
         });
 
-        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
+        glfwSetCursorPosCallback(m_pWindow, [](GLFWwindow* window, double xPos, double yPos)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
 
@@ -308,7 +381,7 @@ namespace Engine
     {
         ENGINE_PROFILE_FUNCTION();
 
-        glfwDestroyWindow(m_Window);
+        glfwDestroyWindow(m_pWindow);
         --s_GLFWWindowCount;
 
         if (s_GLFWWindowCount == 0)

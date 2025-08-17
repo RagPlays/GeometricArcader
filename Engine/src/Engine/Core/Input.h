@@ -13,11 +13,11 @@ namespace Engine
 
 		virtual ~Input() = default;
 
-		inline static bool IsKeyPressed(KeyCode key) { return s_Instance->IsKeyPressedImpl(key); }
-		inline static bool IsMouseButtonPressed(MouseCode button) { return s_Instance->IsMouseButtonPressedImpl(button); }
-		inline static glm::vec2 GetMousePosition() { return s_Instance->GetMousePositionImpl(); }
-		inline static float GetMouseX() { return s_Instance->GetMouseXImpl(); }
-		inline static float GetMouseY() { return s_Instance->GetMouseYImpl(); }
+		inline static bool IsKeyPressed(KeyCode key) { return s_pInstance->IsKeyPressedImpl(key); }
+		inline static bool IsMouseButtonPressed(MouseCode button) { return s_pInstance->IsMouseButtonPressedImpl(button); }
+		inline static glm::vec2 GetMousePosition() { return s_pInstance->GetMousePositionImpl(); }
+		inline static float GetMouseX() { return s_pInstance->GetMouseXImpl(); }
+		inline static float GetMouseY() { return s_pInstance->GetMouseYImpl(); }
 
 	protected:
 
@@ -31,7 +31,7 @@ namespace Engine
 
 	private:
 
-		static Input* s_Instance;
+		static Input* s_pInstance;
 
 	};
 }

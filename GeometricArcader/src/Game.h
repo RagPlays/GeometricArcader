@@ -6,6 +6,7 @@
 #include "Collision/BorderCollision.h"
 #include "Entities/Player/Player.h"
 #include "Pickups/Pickup.h"
+#include "UI/General/ProgressBar.h"
 
 class Game final
 {
@@ -26,9 +27,21 @@ public:
 
 private:
 
+	void UpdatePickups();
+	void RenderPickups() const;
+
+	void SetupGameTimer();
+
+	// Window Events //
+	bool OnWindowResize(Engine::WindowResizeEvent& e);
+
+private:
+
 	Engine::Window& m_Window;
 	BorderCollision m_BorderCollision;
 	Player m_Player;
+
+	ProgressBar m_GameTimer;
 
 	std::vector<Pickup> m_Pickups;
 	

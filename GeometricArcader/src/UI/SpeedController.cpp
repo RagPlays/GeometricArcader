@@ -28,18 +28,12 @@ void SpeedController::Render() const
 {
 	constexpr float barRenderLayer{ 900.f }; // max layer is 1000.f
 	constexpr float barOffset{ 10.f }; // offset for the energy bar
+	const glm::vec2 halfSize{ m_Size * 0.5f };
+	const glm::vec2 winSize{ static_cast<float>(m_Window.GetWidth()), static_cast<float>(m_Window.GetHeight()) };
+	const glm::vec2 halfWinSize{ winSize * 0.5f };
 
-	const glm::vec2 fullBarSize
-	{
-		(m_Size.x - barOffset),
-		(m_Size.y - barOffset)
-	};
-
-	const glm::vec2 renderPos // centerposition of the background bar
-	{
-		m_LeftBotMargin.x + (m_Size.x * 0.5f) - (m_Window.GetWidth() * 0.5f),
-		m_LeftBotMargin.y + (m_Size.y * 0.5f) - (m_Window.GetHeight() * 0.5f),
-	};
+	const glm::vec2 fullBarSize{ m_Size.x - barOffset, m_Size.y - barOffset };
+	const glm::vec2 renderPos{ m_LeftBotMargin + halfSize - halfWinSize };
 
 	Renderer2D::SetDrawColor(Color::lightGray);
 	Renderer2D::DrawFilledRect(glm::vec3{ renderPos, barRenderLayer }, m_Size);

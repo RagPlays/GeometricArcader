@@ -7,7 +7,7 @@
 namespace Engine
 {
 	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
-		: m_WindowHandle{ windowHandle }
+		: m_pWindowHandle{ windowHandle }
 	{
 		ENGINE_CORE_ASSERT_MSG(windowHandle, "Window handle is null!")
 	}
@@ -16,7 +16,7 @@ namespace Engine
 	{
 		ENGINE_PROFILE_FUNCTION();
 
-		glfwMakeContextCurrent(m_WindowHandle);
+		glfwMakeContextCurrent(m_pWindowHandle);
 		const int status{ gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) };
 
 		ENGINE_CORE_ASSERT_MSG(status, "Failed to initialize Glad!");
@@ -46,6 +46,6 @@ namespace Engine
 	void OpenGLContext::SwapBuffers()
 	{
 		ENGINE_PROFILE_FUNCTION();
-		glfwSwapBuffers(m_WindowHandle);
+		glfwSwapBuffers(m_pWindowHandle);
 	}
 }

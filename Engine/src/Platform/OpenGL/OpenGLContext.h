@@ -19,7 +19,7 @@ namespace Engine
 
 	private:
 
-		GLFWwindow* m_WindowHandle;
+		GLFWwindow* m_pWindowHandle;
 
 	};
 }

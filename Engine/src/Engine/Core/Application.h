@@ -47,7 +47,7 @@ namespace Engine
 		void AddLayer(Layer* layer);
 		void AddOverlay(Layer* layer);
 
-		static Application& Get() { return *s_Instance; }
+		static Application& Get() { return *s_pInstance; }
 		inline Window& GetWindow() const { return *m_Window; }
 
 	private:
@@ -69,17 +69,16 @@ namespace Engine
 		std::unique_ptr<Window> m_Window;
 
 		bool m_Running;
-		bool m_Minimized;
 
 		LayerContainer m_LayerContainer;
 
 #if ENGINE_IMGUI
-		ImGuiLayer* m_ImguiLayer;
+		ImGuiLayer* m_pImguiLayer;
 #endif
 
 	private:
 
-		static Application* s_Instance;
+		static Application* s_pInstance;
 
 	};
 

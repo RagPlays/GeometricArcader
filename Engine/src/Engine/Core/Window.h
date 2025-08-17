@@ -55,9 +55,29 @@ namespace Engine
 
 		virtual void OnUpdate() = 0;
 
+		virtual void SetPosition(uint32_t x, uint32_t y) = 0;
+		virtual uint32_t GetPositionX() const = 0;
+		virtual uint32_t GetPositionY() const = 0;
+
+		virtual void Minimize() = 0;
+		virtual void Maximize() = 0;
+		virtual void Restore() = 0;
+		virtual bool IsMinimized() const = 0;
+		virtual bool IsMaximized() const = 0;
+
+		virtual bool IsFocused() const = 0;
+		virtual bool IsHovered() const = 0;
+
+		virtual void SetResizable(bool resizable) = 0;
+		
+		virtual void SetSize(uint32_t width, uint32_t height) = 0;
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
-		virtual void SetWindowSize(uint32_t width, uint32_t height) = 0;
+		virtual void SetSizeLimits(
+			std::optional<uint32_t> minWidth = std::nullopt,
+			std::optional<uint32_t> minHeight = std::nullopt,
+			std::optional<uint32_t> maxWidth = std::nullopt,
+			std::optional<uint32_t> maxHeight = std::nullopt) = 0;
 
 		virtual void SetFullscreen(bool fullscreen) = 0;
 		virtual bool IsFullscreen() const = 0;

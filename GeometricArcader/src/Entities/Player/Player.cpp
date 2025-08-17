@@ -9,6 +9,7 @@ Player::Player()
 	: m_Position{ 0.f, 0.f, 50.f } // 50 is the initial energy
 	, m_Size{ 50.f, 50.f }
 	, m_Velocity{}
+	, m_EnergyRatioColor{}
 	, m_EnergyGain{ 10.f }
 	, m_MaxEnergy{ 100.f }
 	, m_Acceleration{ 2000.f } // units/s^2
@@ -28,13 +29,15 @@ Player::Player()
 
 void Player::OnEvent(Event& e)
 {
+	m_EnergyBar.OnEvent(e);
 }
 
 void Player::Update(const BorderCollision& coll, float deltaTime)
 {
 	m_SpeedController.Update();
+
 	UpdateEnergy(deltaTime);
-	m_EnergyBar.SetValue(m_Position.e021());
+	UpdateEnergyBar();
 	
 	UpdateVelocity(deltaTime);
 	UpdatePosition(deltaTime);
@@ -45,8 +48,8 @@ void Player::Update(const BorderCollision& coll, float deltaTime)
 void Player::Render() const
 {
 	const TriVector position2D{ Get2DPosition() };
-	const float energyRatio{ m_Position.e021() / m_MaxEnergy };
-	Renderer2D::SetDrawColor(glm::vec4{ 1.f - energyRatio, energyRatio, 0.f, 1.f });
+	
+	Renderer2D::SetDrawColor(m_EnergyRatioColor);
 	FlyFishUtils::DrawFillRect(position2D, glm::vec2{m_Size.x - 4.f, m_Size.y - 4.f});
 	Renderer2D::SetDrawColor(Color::white);
 	FlyFishUtils::DrawFillRect(position2D, m_Size);
@@ -132,4 +135,12 @@ void Player::UpdateCollision(const BorderCollision& coll)
 		const Vector& collidedPlane{ *collision.CollidedPlane };
 		m_Velocity = MultiVector{ collidedPlane * m_Velocity * ~collidedPlane }.ToMotor();
 	}
+}
+
+void Player::UpdateEnergyBar()
+{
+	m_EnergyBar.SetValue(m_Position.e021());
+	const float energyRatio{ m_Position.e021() / m_MaxEnergy };
+	m_EnergyRatioColor = { 1.f - energyRatio, energyRatio, 0.f, 1.f };
+	m_EnergyBar.SetValueColor(m_EnergyRatioColor);
 }
