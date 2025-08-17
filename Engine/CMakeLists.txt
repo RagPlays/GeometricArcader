@@ -35,6 +35,9 @@ target_compile_definitions(Engine
         GLFW_INCLUDE_NONE
 )
 
+# Force GLFW to build static
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
 # Add third-party dependencies first
 add_subdirectory(vendor/GLFW)
 add_subdirectory(vendor/Glad)
@@ -43,7 +46,7 @@ add_subdirectory(vendor/imgui)
 # Link dependencies
 target_link_libraries(Engine
     PUBLIC
-        GLFW
+        glfw
         Glad
         ImGui
         opengl32        # Windows OpenGL

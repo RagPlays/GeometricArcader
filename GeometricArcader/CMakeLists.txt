@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.4)
 project("GeometricArcader" LANGUAGES CXX)
 
 # Add FlyFish as a sub-project
