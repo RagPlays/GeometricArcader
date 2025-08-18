@@ -10,10 +10,10 @@ Player::Player()
 	, m_Size{ 50.f, 50.f }
 	, m_Velocity{}
 	, m_EnergyRatioColor{}
-	, m_EnergyGain{ 10.f }
+	, m_EnergyGain{ 5.f }
 	, m_MaxEnergy{ 100.f }
-	, m_Acceleration{ 2000.f } // units/s^2
-	, m_StartSpeed{ 500.f }
+	, m_Acceleration{ 500.f } // units/s^2
+	, m_StartSpeed{ 300.f }
 	, m_MinimumSpeed{ 50.f }
 	, m_EnergyBar{ UIAnchor::LeftBottom, { 30.f, 30.f }, { 500.f, 50.f } }
 	, m_SpeedController{}
@@ -58,6 +58,20 @@ void Player::Render() const
 	m_SpeedController.Render();
 }
 
+void Player::AddEnergy(float energy)
+{
+	// Add Energy
+	m_Position.e021() += energy;
+
+	// Clamp energy
+	m_Position.e021() = std::clamp(m_Position.e021(), 0.f, m_MaxEnergy);
+}
+
+float Player::GetEnergyLevel() const
+{
+	return m_Position.e021();
+}
+
 const TriVector& Player::GetPosition() const
 {
 	return m_Position;
@@ -68,6 +82,16 @@ const TriVector Player::Get2DPosition() const
 	return TriVector{ m_Position.e032(), m_Position.e013(), 0.f, 1.f };
 }
 
+void Player::AddForce(const Motor& force)
+{
+	m_Velocity = force * m_Velocity;
+}
+
+const float Player::GetSpeed() const
+{
+	return m_Velocity.VNorm() * 2.f;
+}
+
 const glm::vec2& Player::GetSize() const
 {
 	return m_Size;
@@ -76,18 +100,13 @@ const glm::vec2& Player::GetSize() const
 void Player::UpdateEnergy(float deltaTime)
 {
 	// Increase energy passively
-	m_Position.e021() += m_EnergyGain * deltaTime;
+	AddEnergy(m_EnergyGain * deltaTime);
 
 	// Decrease energy based on speed
-	const float speed{ m_Velocity.VNorm() * 2.f }; // Current Speed
+	const float speed{ GetSpeed() }; // Current Speed
 	const float speedFactor{ (speed - m_MinimumSpeed) / ((m_StartSpeed + m_Acceleration) - m_MinimumSpeed) };
-
-	// To Faster you go the more drain
-	const float energyDrain{ speedFactor * m_EnergyGain * deltaTime };
-	m_Position.e021() -= energyDrain;
-
-	// Clamp energy
-	m_Position.e021() = std::clamp(m_Position.e021(), 0.f, m_MaxEnergy);
+	const float energyDrain{ speedFactor * m_EnergyGain * deltaTime }; // The Faster you go the more drain there is
+	AddEnergy(-energyDrain);
 }
 
 void Player::UpdateVelocity(float deltaTime)
@@ -97,7 +116,7 @@ void Player::UpdateVelocity(float deltaTime)
 
 	const float vnorm{ m_Velocity.VNorm() }; // Safety Check
 	if (vnorm < 1e-5f) return;
-
+	 
 	// Determine acceleration direction (Acceleration/Deceleration)
 	const float accSign{ moveState == SpeedController::ControllerState::REVERSE ? -1.f : 1.f };
 
@@ -106,11 +125,11 @@ void Player::UpdateVelocity(float deltaTime)
 	Motor accMotor{ FlyFishUtils::GetScaledTranslator(m_Velocity, totalScale) };
 
 	// Accelerate / Decelerate the velocity
-	m_Velocity = accMotor * m_Velocity;
+	AddForce(accMotor);
 
 	// Enforce Minimum Speed
-	const float newSpeed{ m_Velocity.VNorm() * 2.f };
-	if (newSpeed * 2.f < m_MinimumSpeed)
+	const float newSpeed{ GetSpeed() };
+	if (newSpeed < m_MinimumSpeed)
 	{
 		FlyFishUtils::ScaleTranslator(m_Velocity, m_MinimumSpeed / newSpeed);
 	}

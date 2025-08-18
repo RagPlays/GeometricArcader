@@ -7,6 +7,7 @@ add_subdirectory(vendor/FlyFish)
 # Recursively grab all .cpp under src/
 file(GLOB_RECURSE GEOA_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
 )
 if(NOT GEOA_SOURCES)
     message(FATAL_ERROR "No sources found for GeometricArcader in ${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -45,15 +46,13 @@ target_compile_definitions(GeometricArcader PRIVATE
 )
 
 function(copy_assets TARGET_NAME SOURCE_DIR DEST_SUBDIR)
-    foreach(config DEBUG RELEASE DIST)
-        string(TOUPPER "${config}" _cfg)
+    string(TOUPPER "$<CONFIG>" _cfg)
         add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${SOURCE_DIR}"
-                "${OUTPUT_BASE}/${config}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}/${DEST_SUBDIR}"
-            COMMENT "Copying assets from ${SOURCE_DIR} to output dir (${DEST_SUBDIR}) for ${config}"
+                "${OUTPUT_BASE}/$<CONFIG>-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}/${DEST_SUBDIR}"
+            COMMENT "Copying assets from ${SOURCE_DIR} to output dir (${DEST_SUBDIR}) for $<CONFIG>"
         )
-    endforeach()
 endfunction()
 
 # Apply it to both asset folders

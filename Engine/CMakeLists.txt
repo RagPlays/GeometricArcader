@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.5...4.1)
 project(Engine LANGUAGES CXX)
 
 add_library(Engine STATIC)

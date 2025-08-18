@@ -1,6 +1,6 @@
 #include "Pickup.h"
 
-#include "Entities/Player/Player.h"
+#include "Player/Player.h"
 #include "FlyFishTools/FlyFishUtils.h"
 
 using namespace Engine;

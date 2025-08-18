@@ -1,6 +1,9 @@
 #include "enginepch.h"
 #include "Structs.h"
 
+#include <algorithm> // std::clamp
+#include <cmath>     // std::fmodf, std::fabsf
+
 namespace Engine
 {
 	// LINES //
@@ -399,4 +402,41 @@ namespace Engine
 	{
 	}
 
+	namespace Color
+	{
+		glm::vec4 FromRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+		{
+			constexpr float ratio{ 1.f / 255.f };
+			return glm::vec4{ r * ratio, g * ratio, b * ratio, a * ratio };
+		}
+
+		glm::vec4 FromHSV(float h, float s, float v, float a)
+		{
+			// wrap hue
+			h = std::fmodf(h, 360.f);
+			if (h < 0.f) h += 360.f;
+
+			// Clamp inputs
+			s = std::clamp(s, 0.f, 1.f);
+			v = std::clamp(v, 0.f, 1.f);
+			a = std::clamp(a, 0.f, 1.f);
+
+			const float c{ v * s }; // Chroma
+			const float x{ c * (1.f - std::fabsf(std::fmodf(h / 60.f, 2.f) - 1.f)) }; // Second largest component
+			const float m{ v - c }; // Match value to get RGB components
+
+			float r{};
+			float g{};
+			float b{};
+
+			if (h < 60.f) { r = c; g = x; b = 0.f; }
+			else if (h < 120.f) { r = x; g = c; b = 0.f; }
+			else if (h < 180.f) { r = 0.f; g = c; b = x; }
+			else if (h < 240.f) { r = 0.f; g = x; b = c; }
+			else if (h < 300.f) { r = x; g = 0.f; b = c; }
+			else { r = c; g = 0.f; b = x; }
+
+			return glm::vec4{ r + m, g + m, b + m, a };
+		}
+	}
 }

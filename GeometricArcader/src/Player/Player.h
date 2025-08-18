@@ -27,10 +27,16 @@ public:
 	void Update(const BorderCollision& coll, float deltaTime);
 	void Render() const;
 
-	// Getters //
+	// Getters / Setters //
 	const TriVector& GetPosition() const;
 	const TriVector Get2DPosition() const;
 	const glm::vec2& GetSize() const;
+	
+	void AddForce(const Motor& force);
+	const float GetSpeed() const;
+
+	void AddEnergy(float energy);
+	float GetEnergyLevel() const;
 
 private:
 

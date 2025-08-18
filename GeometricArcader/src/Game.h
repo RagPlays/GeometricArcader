@@ -4,8 +4,9 @@
 #include <Engine.h>
 
 #include "Collision/BorderCollision.h"
-#include "Entities/Player/Player.h"
+#include "Player/Player.h"
 #include "Pickups/Pickup.h"
+#include "Pillar/Pillar.h"
 #include "UI/General/ProgressBar.h"
 
 class Game final
@@ -44,6 +45,7 @@ private:
 	ProgressBar m_GameTimer;
 
 	std::vector<Pickup> m_Pickups;
+	Pillar m_Pillar;
 	
 };
 

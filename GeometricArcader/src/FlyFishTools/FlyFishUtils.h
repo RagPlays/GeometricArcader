@@ -32,6 +32,15 @@ public:
     static bool IsVerticalPlane(const Vector& plane);
     static bool IsHorizontalPlane(const Vector& plane);
 
+    static glm::vec2 ToVec2(const TriVector& point);
+	static glm::vec3 ToVec3(const TriVector& point);
+
+	static float Distance(const TriVector& p0, const TriVector& p1);
+
+    static glm::vec3 GetDirection(const TriVector& from, const TriVector& to);
+	static Vector GetDirectionPlane(const TriVector& from, const TriVector& to);
+
+
 	static void ScaleTranslator(Motor& translator, float scale);
 	static Motor GetScaledTranslator(const Motor& translator, float scale);
 	static Motor GetTranslator(const glm::vec3& direction, float distance);
@@ -66,6 +75,8 @@ public:
 
     // Rendering //
 	static void DrawPoint(const TriVector& point);
+
+    static void DrawCircle(const TriVector& point, float radius);
 
     static void DrawFilledCircle(const TriVector& point, float radius);
 

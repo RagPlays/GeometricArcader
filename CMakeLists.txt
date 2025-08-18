@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.5)
 
 # Tell VS that our solution has three configs: Debug, Release, and Dist
 set(CMAKE_CONFIGURATION_TYPES

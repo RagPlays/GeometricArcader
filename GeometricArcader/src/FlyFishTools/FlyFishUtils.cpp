@@ -1,6 +1,7 @@
 #include "FlyFishUtils.h"
 
 #include "FlyFish.h"
+#include <cmath> // for std::isfinite
 
 // Variables //
 const Vector FlyFishUtils::e1{ 0.f, 1.f, 0.f, 0.f };
@@ -25,6 +26,58 @@ bool FlyFishUtils::IsHorizontalPlane(const Vector& plane)
 	constexpr float epsilon{ 1e-6f };
 	// Plane should be close to 0*e1 + 1*e2 + 0*e3
 	return (std::fabs(plane.e1()) < epsilon && std::fabs(plane.e2()) > epsilon && std::fabs(plane.e3()) < epsilon);
+}
+
+glm::vec2 FlyFishUtils::ToVec2(const TriVector& point)
+{
+	// point at infinity
+	if (point.e123() == 0.0f) return glm::vec2{ std::numeric_limits<float>::infinity() };
+
+	const float invW{ 1.0f / point.e123() }; // Mostly stays 1.f
+	return glm::vec2{ point.e032() * invW, point.e013() * invW };
+}
+
+glm::vec3 FlyFishUtils::ToVec3(const TriVector& point)
+{
+	// point at infinity
+	if (point.e123() == 0.0f) return glm::vec3{ std::numeric_limits<float>::infinity() };
+
+	const float invW{ 1.0f / point.e123() }; // Mostly stays 1.f
+	return glm::vec3{ point.e032() * invW, point.e013() * invW, point.e021() * invW };
+}
+
+float FlyFishUtils::Distance(const TriVector& point0, const TriVector& point1)
+{
+	const glm::vec3 pos0{ ToVec3(point0) };
+	const glm::vec3 pos1{ ToVec3(point1) };
+
+	// If either is infinite, return infinite
+	if (
+		!glm::all(glm::vec<3, bool>{ std::isfinite(pos0.x), std::isfinite(pos0.y), std::isfinite(pos0.z) }) ||
+		!glm::all(glm::vec<3, bool>{ std::isfinite(pos1.x), std::isfinite(pos1.y), std::isfinite(pos1.z) })
+		)
+	{
+		return std::numeric_limits<float>::infinity();
+	}
+
+	return glm::distance(pos0, pos1);
+}
+
+glm::vec3 FlyFishUtils::GetDirection(const TriVector& from, const TriVector& to)
+{
+	ENGINE_ASSERT_MSG(from.e123() != 0.f && to.e123() != 0.f, "Cant find direction of infinite points");
+
+	const glm::vec3 p1{ ToVec3(from) };
+	const glm::vec3 p2{ ToVec3(to) };
+	const glm::vec3 dir{ glm::normalize(p2 - p1) };
+
+	return dir;
+}
+
+Vector FlyFishUtils::GetDirectionPlane(const TriVector& from, const TriVector& to)
+{
+	const glm::vec3 dir{ GetDirection(from, to) };
+	return Vector{ 0.0f, dir.x, dir.y, dir.z }; // Plane through origin with only a direction
 }
 
 void FlyFishUtils::ScaleTranslator(Motor& translator, float scale)
@@ -93,12 +146,6 @@ void FlyFishUtils::Translate(TriVector& point, const BiVector& lineDirection, fl
 	point = (translator * point * ~translator).Grade3();
 }
 
-//void FlyFishUtils::Translate(TriVector& point, const Motor& translator)
-//{
-//	// Apply the Translation
-//	point = (translator * point * ~translator).Grade3();
-//}
-
 // returns signed distance from TriVector point to Vector plane.
 // Positive means point lies in direction of plane normal.
 float FlyFishUtils::SignedDistanceToPlane(const Vector& plane, const TriVector& point)
@@ -162,6 +209,12 @@ void FlyFishUtils::DrawPoint(const TriVector& point)
 {
 	const glm::vec3 pos{ point.e032(), point.e013(), point.e021() };
 	Engine::Renderer2D::DrawPoint(pos);
+}
+
+void FlyFishUtils::DrawCircle(const TriVector& point, float radius)
+{
+	const glm::vec3 pos{ point.e032(), point.e013(), point.e021() };
+	Engine::Renderer2D::DrawCircle(pos, radius);
 }
 
 void FlyFishUtils::DrawFilledCircle(const TriVector& point, float radius)
