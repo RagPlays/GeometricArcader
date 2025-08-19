@@ -78,6 +78,7 @@ namespace Engine
 			std::optional<uint32_t> minHeight = std::nullopt,
 			std::optional<uint32_t> maxWidth = std::nullopt,
 			std::optional<uint32_t> maxHeight = std::nullopt) = 0;
+		virtual void SetAspectRatio(uint32_t numerator, uint32_t denominator) = 0;
 
 		virtual void SetFullscreen(bool fullscreen) = 0;
 		virtual bool IsFullscreen() const = 0;

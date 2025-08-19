@@ -143,6 +143,11 @@ float ProgressBar::GetValue() const
 	return m_Value;
 }
 
+float ProgressBar::GetProgress() const
+{
+	return (m_MaxValue > 0.f) ? (m_Value / m_MaxValue) : 0.f; // Avoid division by zero
+}
+
 void ProgressBar::SetMaxValue(float maxValue)
 {
     m_MaxValue = maxValue;

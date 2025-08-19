@@ -120,8 +120,6 @@ void FontRenderer::DebugRenderGlyph(const GlyphData& glyph, const glm::ivec2& of
 
 void FontRenderer::DebugRenderContourGlyph(const GlyphData& glyph, const glm::ivec2& offset) const
 {
-	Renderer2D::SetLineWidth(1.5f);
-
 	const std::vector<uint16_t>& contourEndIndices{ glyph.contourEndIndices };
 	const std::vector<GlyphPoint>& points{ glyph.points };
 
@@ -168,8 +166,6 @@ void FontRenderer::DebugRenderContourGlyph(const GlyphData& glyph, const glm::iv
 
 void FontRenderer::DebugRenderBezierGlyph(const GlyphData& glyph, const glm::ivec2& offset) const
 {
-	Renderer2D::SetLineWidth(1.5f);
-
 	const float scale{ 1.f / m_Font->GetUnitsPerEm() };
 	const std::vector<std::vector<GlyphPoint>> contours{ CreateContoursWithImpliedPoints(glyph) };
 

@@ -18,7 +18,7 @@ struct FontRenderConfigs
 	bool drawDebugPoints{ false };
 	bool drawDebugBoundBox{ false };
 
-	bool useBezierCurves{ false };
+	bool useBezierCurves{ true };
 	uint32_t bezierCurveResolution{ 5 };
 
 	bool operator==(const FontRenderConfigs& other) const

@@ -244,7 +244,12 @@ namespace Engine
 
 	void Renderer2D::Shutdown()
 	{
-		//ENGINE_PROFILE_FUNCTION();
+		ENGINE_PROFILE_FUNCTION();
+
+		delete[] s_Data.pQuadVertexBufferBase;
+		delete[] s_Data.pPointVertexBufferBase;
+		delete[] s_Data.pLineVertexBufferBase;
+		delete[] s_Data.pCircleVertexBufferBase;
 	}
 
 	void Renderer2D::BeginScene(const Camera& camera)
@@ -684,7 +689,7 @@ namespace Engine
 
 	void Renderer2D::DrawTexture(const Ref<Texture2D>& texture, const glm::vec2& position, const glm::vec2& size, const glm::vec4& tintColor, float tilingFactor)
 	{
-		DrawTexture(texture, glm::vec3{ position, 0.f }, glm::vec2{ static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()) }, tintColor, tilingFactor);
+		DrawTexture(texture, glm::vec3{ position, 0.f }, size, tintColor, tilingFactor);
 	}
 
 	void Renderer2D::DrawTexture(const Ref<Texture2D>& texture, const glm::vec3& position, const glm::vec2& size, const glm::vec4& tintColor, float tilingFactor)
@@ -720,7 +725,7 @@ namespace Engine
 
 	void Renderer2D::DrawTexture(const Ref<Texture2D>& texture, const glm::vec2& position, const glm::vec2& size, float radAngle, const glm::vec4& tintColor, float tilingFactor)
 	{
-		DrawTexture(texture, glm::vec3{ position, 0.f }, glm::vec2{ static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()) }, radAngle, tintColor, tilingFactor);
+		DrawTexture(texture, glm::vec3{ position, 0.f }, size, radAngle, tintColor, tilingFactor);
 	}
 
 	void Renderer2D::DrawTexture(const Ref<Texture2D>& texture, const glm::vec3& position, const glm::vec2& size, float radAngle, const glm::vec4& tintColor, float tilingFactor)

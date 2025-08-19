@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <Engine.h>
+#include "GameStates/IGameState.h"
 
 #include "Collision/BorderCollision.h"
 #include "Player/Player.h"
@@ -9,7 +9,7 @@
 #include "Pillar/Pillar.h"
 #include "UI/General/ProgressBar.h"
 
-class Game final
+class Game final : public IGameState
 {
 public:
 
@@ -21,10 +21,15 @@ public:
 	Game& operator=(const Game&) = delete;
 	Game& operator=(Game&&) noexcept = delete;
 
-	void OnEvent(Engine::Event& e);
+	virtual void OnEvent(Engine::Event& e) override;
 
-	void Update(float deltaTime);
-	void Render() const;
+	virtual void Update(float deltaTime) override;
+	virtual void Render() const override;
+
+	virtual bool IsComplete() const override;
+	virtual GameStateType NextState() const override;
+
+	uint32_t GetScore() const;
 
 private:
 
@@ -32,6 +37,7 @@ private:
 	void RenderPickups() const;
 
 	void SetupGameTimer();
+	void UpdateGameTimer(float deltaTime);
 
 	// Window Events //
 	bool OnWindowResize(Engine::WindowResizeEvent& e);
@@ -46,7 +52,8 @@ private:
 
 	std::vector<Pickup> m_Pickups;
 	Pillar m_Pillar;
-	
+
+	uint32_t m_Score;
 };
 
 #endif // !GAME_H

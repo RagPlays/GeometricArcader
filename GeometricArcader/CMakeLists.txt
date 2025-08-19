@@ -4,10 +4,11 @@ project("GeometricArcader" LANGUAGES CXX)
 # Add FlyFish as a sub-project
 add_subdirectory(vendor/FlyFish)
 
-# Recursively grab all .cpp under src/
+# Recursively grab all files
 file(GLOB_RECURSE GEOA_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
      "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
 )
 if(NOT GEOA_SOURCES)
     message(FATAL_ERROR "No sources found for GeometricArcader in ${CMAKE_CURRENT_SOURCE_DIR}/src")

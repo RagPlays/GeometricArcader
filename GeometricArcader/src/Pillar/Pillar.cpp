@@ -45,9 +45,9 @@ void Pillar::Render() const
 
 	const glm::vec4 sunColor{Color::FromRGBA(254, 241, 114) };
 	Renderer2D::SetDrawColor(sunColor);
-	Renderer2D::DrawFilledCircle(glm::vec3{ renderPos, renderLayer }, m_Size.x * 0.5f);
+	Renderer2D::DrawFilledCircle(glm::vec3{ renderPos, renderLayer + 3.f }, m_Size.x * 0.5f);
 	Renderer2D::SetDrawColor(Color::black);
-	FlyFishUtils::DrawFilledCircle(m_Position + TriVector{0.f, 0.f, 1.f}, m_Size.x * 0.4f);
+	Renderer2D::DrawFilledCircle(glm::vec3{ renderPos, renderLayer + 4.f }, m_Size.x * 0.4f);
 }
 
 const TriVector& Pillar::GetPosition() const

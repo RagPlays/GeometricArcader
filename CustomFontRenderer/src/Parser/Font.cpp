@@ -10,7 +10,7 @@
 
 #include "Font.h"
 
-#define PARSELOGGING
+//#define PARSELOGGING
 #ifdef PARSELOGGING
 #include <iostream>
 #endif

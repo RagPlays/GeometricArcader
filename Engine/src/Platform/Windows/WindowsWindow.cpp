@@ -130,6 +130,12 @@ namespace Engine
         glfwSetWindowSizeLimits(m_pWindow, minW, minH, maxW, maxH);
     }
 
+    void WindowsWindow::SetAspectRatio(uint32_t numerator, uint32_t denominator)
+    {
+        if (numerator > 0 && denominator > 0) glfwSetWindowAspectRatio(m_pWindow, numerator, denominator);
+        else glfwSetWindowAspectRatio(m_pWindow, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    }
+
     void WindowsWindow::SetFullscreen(bool fullscreen)
     {
         if (m_Data.fullScreen == fullscreen) return;

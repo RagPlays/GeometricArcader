@@ -51,6 +51,7 @@ public:
 	void SetValue(float newValue);
 	void AddValue(float value);
 	float GetValue() const;
+	float GetProgress() const; // Returns the progress as a percentage (0.0 to 1.0)
 
 	void SetMaxValue(float maxValue);
 	float GetMaxValue() const;

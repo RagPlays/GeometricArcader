@@ -1,6 +1,6 @@
 #include "Game.h"
 
-#include "Collision/Collision.h"
+#include "Collision/Collision2D.h"
 
 using namespace Engine;
 
@@ -11,8 +11,9 @@ Game::Game()
 	, m_GameTimer{}
 	, m_Pickups{}
 	, m_Pillar{}
+	, m_Score{}
 {
-	ENGINE_TRACE("Game Started");
+	ENGINE_TRACE("MainGame Started");
 
 	SetupGameTimer();
 
@@ -36,8 +37,7 @@ void Game::Update(float deltaTime)
 	m_Pillar.Update(m_Player, deltaTime);
 
 	UpdatePickups();
-
-	m_GameTimer.AddValue(deltaTime);
+	UpdateGameTimer(deltaTime);
 }
 
 void Game::Render() const
@@ -50,6 +50,21 @@ void Game::Render() const
 	m_GameTimer.Render();
 }
 
+bool Game::IsComplete() const
+{
+	return m_GameTimer.IsFull();
+}
+
+IGameState::GameStateType Game::NextState() const
+{
+	return GameStateType::End;
+}
+
+uint32_t Game::GetScore() const
+{
+	return m_Score;
+}
+
 void Game::UpdatePickups()
 {
 	constexpr float energyGainOnPickup{ 1.f };
@@ -58,8 +73,9 @@ void Game::UpdatePickups()
 
 	for (auto& pickup : m_Pickups)
 	{
-		if (Collision::HasCollision(pickup.GetPosition(), pickup.GetSize(), playerPos, playerSize))
+		if (Collision2D::HasCollisionGEOA(pickup.GetPosition(), pickup.GetSize(), playerPos, playerSize))
 		{
+			++m_Score;
 			pickup.RandomizePosition();
 			m_Player.AddEnergy(energyGainOnPickup);
 		}
@@ -68,9 +84,6 @@ void Game::UpdatePickups()
 
 void Game::RenderPickups() const
 {
-	/*const float energyLevel{ m_Player.GetEnergyLevel() };
-	if (energyLevel < 50.f) return;*/
-
 	for (const auto& pickup : m_Pickups)
 	{
 		pickup.Render();
@@ -80,7 +93,7 @@ void Game::RenderPickups() const
 void Game::SetupGameTimer()
 {
 	const glm::vec2 winSize{ static_cast<float>(m_Window.GetWidth()), static_cast<float>(m_Window.GetHeight()) };
-	constexpr float gameDuration{ 60.f };
+	constexpr float gameDuration{ 30.f };
 
 	m_GameTimer.SetMaxValue(gameDuration);
 
@@ -93,7 +106,16 @@ void Game::SetupGameTimer()
 	m_GameTimer.SetValueColor(Color::white);
 }
 
-bool Game::OnWindowResize(Engine::WindowResizeEvent& e)
+void Game::UpdateGameTimer(float deltaTime)
+{
+	m_GameTimer.AddValue(deltaTime);
+	if (m_GameTimer.GetProgress() > 0.9f)
+	{
+		m_GameTimer.SetValueColor(Color::red);
+	}
+}
+
+bool Game::OnWindowResize(WindowResizeEvent& e)
 {
 	SetupGameTimer();
 

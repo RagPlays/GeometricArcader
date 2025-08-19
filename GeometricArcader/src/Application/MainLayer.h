@@ -5,7 +5,12 @@
 
 #include "Camera/DefaultCamera.h"
 
+#include "GameStates/IGameState.h"
+
 class Game;
+class StartScreen;
+class EndScreen;
+class IGameState;
 
 class MainLayer final : public Engine::Layer
 {
@@ -21,6 +26,8 @@ public:
 
 private:
 
+	void UpdateGameStateChange();
+
 	bool OnKeyReleased(Engine::KeyReleasedEvent& event);
 
 private:
@@ -30,7 +37,13 @@ private:
 	const unsigned int m_MinHeight;
 
 	DefaultCamera m_Camera;
-	std::unique_ptr<Game> m_Game;
+
+	std::unique_ptr<Game> m_MainGame;
+	std::unique_ptr<StartScreen> m_StartScreen;
+	std::unique_ptr<EndScreen> m_EndScreen;
+
+	IGameState* m_pCurrentGameState;
+	IGameState::GameStateType m_CurrentGameStateType;
 
 	bool m_ShowImgui;
 	bool m_RestartGameRequest;

@@ -2,21 +2,30 @@
 
 #include <imgui/imgui.h>
 
-#include "Game.h"
+#include "GameStates/Game.h"
+#include "GameStates/StartScreen.h"
+#include "GameStates/EndScreen.h"
 
 using namespace Engine;
 
 MainLayer::MainLayer()
 	: Layer{ "MainLayer" }
 	, m_Window{ Application::Get().GetWindow() }
-	, m_MinWidth{ 1080 }
+	, m_MinWidth{ 1280 }
 	, m_MinHeight{ 720 }
 	, m_Camera{}
-	, m_Game{ std::make_unique<Game>() }
+	, m_StartScreen{}
+	, m_MainGame{}
+	, m_EndScreen{}
+	, m_pCurrentGameState{}
+	, m_CurrentGameStateType{ IGameState::GameStateType::None }
 	, m_ShowImgui{}
 	, m_RestartGameRequest{}
 {
 	m_Window.SetSizeLimits(m_MinWidth, m_MinHeight);
+	m_Window.SetAspectRatio(16, 9);
+
+	UpdateGameStateChange();
 }
 
 MainLayer::~MainLayer()
@@ -25,21 +34,21 @@ MainLayer::~MainLayer()
 
 void MainLayer::OnUpdate()
 {
-	if (m_RestartGameRequest) 
-	{
-		m_Game = std::make_unique<Game>();
-		m_RestartGameRequest = false;
-	}
-
+	// Update //
 	const FrameTimer& timer{ FrameTimer::Get() };
-	m_Game->Update(timer.GetSeconds());
+	UpdateGameStateChange();
+	ENGINE_ASSERT_MSG(m_pCurrentGameState, "No current game state set!");
+	m_pCurrentGameState->Update(timer.GetSeconds());
 
+	// Render //
 	Renderer2D::ResetStats();
 	RenderCommand::SetClearColor({ 0.075f, 0.075f, 0.075f, 0.075f });
 	RenderCommand::Clear();
 
 	Renderer2D::BeginScene(m_Camera.GetCamera());
-	m_Game->Render();
+	{
+		m_pCurrentGameState->Render();
+	}
 	Renderer2D::EndScene();
 }
 
@@ -105,12 +114,49 @@ void MainLayer::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(MainLayer::OnKeyReleased));
 
 	m_Camera.OnEvent(e);
-	m_Game->OnEvent(e);
+
+	if (m_pCurrentGameState) m_pCurrentGameState->OnEvent(e);
+}
+
+void MainLayer::UpdateGameStateChange()
+{
+	if (m_pCurrentGameState && m_pCurrentGameState->IsComplete())
+	{
+		m_CurrentGameStateType = m_pCurrentGameState->NextState();
+		switch (m_CurrentGameStateType)
+		{
+		case IGameState::GameStateType::Start:
+			m_StartScreen = std::make_unique<StartScreen>();
+			m_pCurrentGameState = m_StartScreen.get();
+			break;
+		case IGameState::GameStateType::MainGame:
+			m_MainGame = std::make_unique<Game>();
+			m_pCurrentGameState = m_MainGame.get();
+			break;
+		case IGameState::GameStateType::End:
+			ENGINE_ASSERT_MSG(m_MainGame != nullptr, "MainGame cant be nullptr here!");
+			m_EndScreen = std::make_unique<EndScreen>(m_MainGame->GetScore());
+			m_pCurrentGameState = m_EndScreen.get();
+			break;
+		default:
+			ENGINE_ASSERT_MSG(false, "Unknown game state type encountered!");
+			break;
+		}
+	}
+
+	// if no active state yet (first run)
+	if (!m_pCurrentGameState)
+	{
+		m_StartScreen = std::make_unique<StartScreen>();
+		m_pCurrentGameState = m_StartScreen.get();
+		m_CurrentGameStateType = IGameState::GameStateType::Start;
+	}
 }
 
 bool MainLayer::OnKeyReleased(KeyReleasedEvent& e)
 {
 	const bool iPressedThisFrame{ e.GetKeyCode() == Key::I };
+	const bool escPressedThisFrame{ e.GetKeyCode() == Key::Escape };
 	const bool leftCtrlPressed{ Input::IsKeyPressed(Key::LeftControl) };
 	const bool leftAltPressed{ Input::IsKeyPressed(Key::LeftAlt) };
 
@@ -120,16 +166,17 @@ bool MainLayer::OnKeyReleased(KeyReleasedEvent& e)
 		m_ShowImgui = !m_ShowImgui;
 	}
 
-	// Game Reset
-	if (e.GetKeyCode() == Key::R)
-	{
-		m_RestartGameRequest = true;
-	}
-
 	// Fullscreen Toggle
 	if(e.GetKeyCode() == Key::Enter && leftAltPressed)
 	{
 		m_Window.SetFullscreen(!m_Window.IsFullscreen());
+	}
+
+	// Quit Application
+	if (escPressedThisFrame)
+	{
+		Application::Get().Close();
+		return true;
 	}
 
 	return false;
