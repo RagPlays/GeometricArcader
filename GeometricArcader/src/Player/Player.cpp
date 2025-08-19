@@ -72,6 +72,11 @@ float Player::GetEnergyLevel() const
 	return m_Position.e021();
 }
 
+bool Player::IsDead() const
+{
+	return m_EnergyBar.GetProgress() <= 0.f;
+}
+
 const TriVector& Player::GetPosition() const
 {
 	return m_Position;

@@ -27,7 +27,7 @@ namespace Engine
 
 	Application::Application(const WindowProps& windowProperties)
 		: m_Window{ nullptr }
-		, m_Running{ true }
+		, m_Running{ false }
 #if ENGINE_IMGUI
 		, m_pImguiLayer{ nullptr }
 #endif
@@ -68,7 +68,7 @@ namespace Engine
 		EventDispatcher dispatcher{ e };
 
 		dispatcher.Dispatch<WindowCloseEvent>(ENGINE_BIND_EVENT_FN(Application::OnWindowClosed));
-		dispatcher.Dispatch<WindowResizeEvent>(ENGINE_BIND_EVENT_FN(Application::OnWindowResize));
+		dispatcher.Dispatch<FramebufferResizeEvent>(ENGINE_BIND_EVENT_FN(Application::OnFrameBufferResize));
 
 		for (auto it{ m_LayerContainer.rbegin() }; it != m_LayerContainer.rend(); ++it)
 		{
@@ -97,7 +97,7 @@ namespace Engine
 		return true;
 	}
 
-	bool Application::OnWindowResize(WindowResizeEvent& e)
+	bool Application::OnFrameBufferResize(FramebufferResizeEvent& e)
 	{
 		ENGINE_PROFILE_FUNCTION();
 
@@ -136,9 +136,11 @@ namespace Engine
 	void Application::Run()
 	{
 		ENGINE_PROFILE_FUNCTION();
+		ENGINE_ASSERT_MSG(m_Running == false, "Should not be running when trying to start the loop");
 
 		FrameTimer::Get();
 
+		m_Running = true;
 		while (m_Running)
 		{
 			ENGINE_PROFILE_SCOPE("Applicstion::Run-RunLoop");

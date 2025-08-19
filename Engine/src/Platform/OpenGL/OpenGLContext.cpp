@@ -18,7 +18,6 @@ namespace Engine
 
 		glfwMakeContextCurrent(m_pWindowHandle);
 		const int status{ gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) };
-
 		ENGINE_CORE_ASSERT_MSG(status, "Failed to initialize Glad!");
 
 #if defined ENGINE_DEBUG

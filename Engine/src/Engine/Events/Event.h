@@ -15,10 +15,15 @@ namespace Engine
 	enum class EventType
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+
+		// Window events
+		FramebufferResize, WindowResize, WindowClose, WindowFocus, WindowLostFocus, WindowMoved,
+		// Application events
 		AppTick, AppUpdate, AppRender,
+		// Key events
 		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+		// Mouse events
+		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled, MouseEntered, MouseExited
 	};
 
 	enum EventCategory

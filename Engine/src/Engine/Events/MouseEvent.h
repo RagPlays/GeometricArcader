@@ -141,6 +141,26 @@ namespace Engine
 		EVENT_CLASS_TYPE(MouseButtonReleased)
 
 	};
+
+	class MouseEnterEvent : public Event
+	{
+	public:
+
+		MouseEnterEvent() = default;
+
+		EVENT_CLASS_TYPE(MouseEntered)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse)
+	};
+
+	class MouseLeaveEvent : public Event
+	{
+	public:
+
+		MouseLeaveEvent() = default;
+
+		EVENT_CLASS_TYPE(MouseExited)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse)
+	};
 }
 
 #endif // !MOUSEEVENT_H

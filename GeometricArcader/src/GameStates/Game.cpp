@@ -52,7 +52,7 @@ void Game::Render() const
 
 bool Game::IsComplete() const
 {
-	return m_GameTimer.IsFull();
+	return m_GameTimer.IsFull() || m_Player.IsDead();
 }
 
 IGameState::GameStateType Game::NextState() const

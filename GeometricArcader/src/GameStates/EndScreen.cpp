@@ -29,6 +29,8 @@ void EndScreen::Update(float deltaTime)
 
 void EndScreen::Render() const
 {
+	const glm::vec2 winSize{ static_cast<float>(m_Window.GetWidth()), static_cast<float>(m_Window.GetHeight()) };
+	Renderer2D::DrawTexture(m_BackgroundTexture, { 0.0f, 0.0f }, winSize);
 }
 
 bool EndScreen::IsComplete() const

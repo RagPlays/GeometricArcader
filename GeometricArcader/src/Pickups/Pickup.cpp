@@ -21,19 +21,16 @@ void Pickup::Render() const
 
 void Pickup::RandomizePosition()
 {
-	const float windowWidth{ static_cast<float>(m_Window.GetWidth()) };
-	const float windowHeight{ static_cast<float>(m_Window.GetHeight()) };
-	const float halfWidth{ windowWidth * 0.5f };
-	const float halfHeight{ windowHeight * 0.5f };
+	const glm::vec2 winSize{ static_cast<float>(m_Window.GetWidth()), static_cast<float>(m_Window.GetHeight()) };
+	const glm::vec2 halfWinSize{ winSize * 0.5f };
 
-	const glm::vec3 randomPosition
+	const glm::vec2 randomPosition
 	{
-		Random::Range(0.f, m_Window.GetWidth() - m_Size.x) - halfWidth,
-		Random::Range(0.f, m_Window.GetHeight() - m_Size.y) - halfHeight,
-		-1.f
+		Random::Range(m_Size.x, winSize.x - m_Size.x) - halfWinSize.x,
+		Random::Range(m_Size.y, winSize.y - m_Size.y) - halfWinSize.y,
 	};
 
-	m_Position = TriVector{ randomPosition.x, randomPosition.y, randomPosition.z };
+	m_Position = TriVector{ randomPosition.x, randomPosition.y, -1.f };
 }
 
 const TriVector& Pickup::GetPosition() const

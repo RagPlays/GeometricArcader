@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Engine/Events/WindowEvent.h"
 #include "Engine/Events/ApplicationEvent.h"
 #include "Engine/Events/KeyEvent.h"
 #include "Engine/Events/MouseEvent.h"
@@ -291,10 +292,33 @@ namespace Engine
 
     void WindowsWindow::InitCallbacks()
     {
-        // Set GLFW callbacks
+        // FramebufferResizeEvent
+        // WindowResizeEvent
+        // WindowCloseEvent
+        // WindowFocusEvent / WindowLostFocusEvent
+		// WindowMovedEvent
+		// KeyPressedEvent / KeyReleasedEvent
+        // KeyTypedEvent
+		// MouseButtonPressedEvent / MouseButtonReleasedEvent
+		// MouseMovedEvent
+		// MouseScrolledEvent
+		// MouseEnterEvent / MouseLeaveEvent
+
+        glfwSetFramebufferSizeCallback(m_pWindow, [](GLFWwindow* window, int width, int height)
+        {
+            WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
+
+            // actual framebuffer pixel size (use in glViewport)
+            FramebufferResizeEvent event{ static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
+
+            data.eventCallback(event);
+        });
+
         glfwSetWindowSizeCallback(m_pWindow, [](GLFWwindow* window, int width, int height)
         {
             WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
+
+            // logical size (OS units, not pixels)
             data.width = static_cast<uint32_t>(width);
             data.height = static_cast<uint32_t>(height);
 
@@ -305,9 +329,33 @@ namespace Engine
         glfwSetWindowCloseCallback(m_pWindow, [](GLFWwindow* window)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
+
             WindowCloseEvent event{};
             data.eventCallback(event);
 
+        });
+
+        glfwSetWindowFocusCallback(m_pWindow, [](GLFWwindow* window, int focused)
+        {
+            const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
+            if (focused)
+            {
+                WindowFocusEvent event{};
+                data.eventCallback(event);
+            }
+            else
+            {
+                WindowLostFocusEvent event{};
+                data.eventCallback(event);
+            }
+        });
+
+        glfwSetWindowPosCallback(m_pWindow, [](GLFWwindow* window, int xpos, int ypos)
+        {
+            const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
+
+            WindowMovedEvent event{ static_cast<uint32_t>(xpos), static_cast<uint32_t>(ypos) };
+            data.eventCallback(event);
         });
 
         glfwSetKeyCallback(m_pWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -366,6 +414,14 @@ namespace Engine
             }
         });
 
+        glfwSetCursorPosCallback(m_pWindow, [](GLFWwindow* window, double xPos, double yPos)
+        {
+            const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
+
+            MouseMovedEvent event{ static_cast<float>(xPos), static_cast<float>(yPos) };
+            data.eventCallback(event);
+        });
+
         glfwSetScrollCallback(m_pWindow, [](GLFWwindow* window, double xOffset, double yOffset)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
@@ -374,12 +430,19 @@ namespace Engine
             data.eventCallback(event);
         });
 
-        glfwSetCursorPosCallback(m_pWindow, [](GLFWwindow* window, double xPos, double yPos)
+        glfwSetCursorEnterCallback(m_pWindow, [](GLFWwindow* window, int entered)
         {
             const WindowData& data{ *(WindowData*)glfwGetWindowUserPointer(window) };
-
-            MouseMovedEvent event{ static_cast<float>(xPos), static_cast<float>(yPos) };
-            data.eventCallback(event);
+            if (entered)
+            {
+                MouseEnterEvent event{};
+                data.eventCallback(event);
+            }
+            else
+            {
+                MouseLeaveEvent event{};
+                data.eventCallback(event);
+            }
         });
     }
 

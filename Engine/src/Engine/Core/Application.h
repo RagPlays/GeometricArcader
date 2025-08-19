@@ -7,7 +7,7 @@
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Window.h"
 #include "Engine/Core/LayerContainer.h"
-#include "Engine/Events/ApplicationEvent.h"
+#include "Engine/Events/WindowEvent.h"
 
 int main(int argc, char** argv);
 
@@ -56,7 +56,7 @@ namespace Engine
 
 		// Events
 		bool OnWindowClosed(WindowCloseEvent& closeWindowE);
-		bool OnWindowResize(WindowResizeEvent& resizeWindowE);
+		bool OnFrameBufferResize(FramebufferResizeEvent& framebufferResizeE);
 
 		// Updates
 		void UpdateLayers();

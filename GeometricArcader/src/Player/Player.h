@@ -38,6 +38,8 @@ public:
 	void AddEnergy(float energy);
 	float GetEnergyLevel() const;
 
+	bool IsDead() const;
+
 private:
 
 	void UpdateEnergy(float deltaTime);

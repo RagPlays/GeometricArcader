@@ -14,8 +14,8 @@ namespace Engine
 	static unsigned int ShaderTypeFromString(const std::string& type)
 	{
 		if (type == "vertex") return GL_VERTEX_SHADER;
-		// pixel shader and fragment shader are the same
-		else if (type == "fragment" || type == "pixel") return GL_FRAGMENT_SHADER;
+		else if (type == "fragment" || type == "pixel") return GL_FRAGMENT_SHADER; // pixel/fragment shader are the same
+		else if (type == "geometry") return GL_GEOMETRY_SHADER;
 
 		ENGINE_CORE_ASSERT_MSG(false, "Unknown shader type!");
 		return 0;
@@ -222,9 +222,9 @@ namespace Engine
 		// Create programm
 		unsigned int programId{ glCreateProgram() };
 
-		ENGINE_CORE_ASSERT_MSG(shaderSources.size() <= 2, "Engine only supports 2 shaders for now");
+		ENGINE_CORE_ASSERT_MSG(shaderSources.size() <= 3, "Engine only supports 2 shaders for now (vertex, geometry, fragment)");
 
-		std::array<unsigned int, 2> glShaderIDs{};
+		std::array<unsigned int, 3> glShaderIDs{};
 		int glShaderIDIndex{};
 
 		for (const auto& [type, source] : shaderSources)
@@ -291,7 +291,6 @@ namespace Engine
 		// Detach shaders again after successful link because there in the programm
 		for (auto id : glShaderIDs)
 		{
-			glDetachShader(programId, id);
 			glDeleteShader(id);
 		}
 
