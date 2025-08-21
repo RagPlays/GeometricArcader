@@ -37,7 +37,7 @@ namespace Engine
 		// Set Application Instance
 		ENGINE_CORE_ASSERT_MSG(!s_pInstance, "Application can not be set twice");
 		s_pInstance = this;
-
+		
 		// Create Window
 		m_Window = Window::Create(windowProperties);
 

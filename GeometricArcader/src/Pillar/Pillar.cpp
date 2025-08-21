@@ -11,6 +11,7 @@ Pillar::Pillar()
 	, m_Size{ 60.f, 60.f }
 	, m_InfluenceRadius{ 400.f } // Radius of influence for gravity (beyond this, gravity is 0)
 	, m_UsingGravity{ false }
+	, m_PullGravity{ true }
 {
 	m_Position.e021() = 0.f; // Ensure z-coordinate is set to 0 (otherwise player energy could be messed up)
 }
@@ -23,6 +24,9 @@ void Pillar::OnEvent(Event& e)
 
 void Pillar::Update(Player& player, float deltaTime)
 {
+	m_UsingGravity = Input::IsKeyPressed(Key::Space);
+	if (!m_UsingGravity) return;
+
 	UpdatePlayerGravity(player, deltaTime);
 }
 
@@ -55,29 +59,58 @@ const TriVector& Pillar::GetPosition() const
 	return m_Position;
 }
 
-void Pillar::UpdatePlayerGravity(Player& player, float deltaTime)
+void Pillar::ToggleGravityType()
 {
-	m_UsingGravity = Input::IsKeyPressed(Key::Space);
-	if (!m_UsingGravity) return;
+	m_PullGravity = !m_PullGravity;
+}
 
+bool Pillar::GetGravityType() const
+{
+	return m_PullGravity;
+}
+
+void Pillar::UpdatePlayerRotation(Player& player, float deltaTime) const
+{
+	// Angular speed in degrees per second
+	constexpr float angularSpeed{ 90.0f }; // one quarter turn per second
+
+	TriVector playerPos{ player.Get2DPosition() };
+	if (FlyFishUtils::DistanceGA(m_Position, playerPos) > m_InfluenceRadius) return;
+
+	// Angle to rotate this frame
+	const float deltaAngle{ angularSpeed * deltaTime };
+
+	// Rotate around pillar center (m_Position)
+	FlyFishUtils::RotateAroundPoint(playerPos, m_Position, deltaAngle);
+
+	// Update player position
+	player.SetPosition(playerPos);
+}
+
+void Pillar::UpdatePlayerGravity(Player& player, float deltaTime) const
+{
 	constexpr float gravityStrength{ 80000000.f };	// Gravity constant
 	constexpr float maxForce{ 5000.f };				// clamp to avoid insane speeds
 
-	const TriVector& playerPos{ player.Get2DPosition() };
-	const float dist{ FlyFishUtils::Distance(m_Position, playerPos) };
-	if (dist < m_InfluenceRadius)
+	const TriVector playerPos{ player.Get2DPosition() };
+	const float dist{ FlyFishUtils::DistanceGA(m_Position, playerPos) };
+	if (dist > m_InfluenceRadius) return;
+
+	// Newtonian gravity: F = G / r^2
+	const float strength{ gravityStrength / (dist * dist) };
+	const float clampedStrength{ std::clamp(strength, 0.f, maxForce) };
+	const float deltaStrength{ clampedStrength * deltaTime };
+
+	const BiVector dirLine
 	{
-		const glm::vec3 dir{ FlyFishUtils::GetDirection(m_Position, playerPos) };
-
-		// Newtonian gravity: F = G / r^2
-		const float strength{ gravityStrength / (dist * dist) };
-		const float clampedStrength{ std::clamp(strength, 0.f, maxForce) };
-
-		player.AddForce(FlyFishUtils::GetTranslator(dir, clampedStrength * deltaTime));
-	}
+		m_PullGravity ?
+		FlyFishUtils::GetDirectionLineGA(playerPos, m_Position) :
+		FlyFishUtils::GetDirectionLineGA(m_Position, playerPos)
+	};
+	player.AddForce(FlyFishUtils::GetTranslator(dirLine, deltaStrength));
 }
 
-bool Pillar::OnMousePressed(const MouseButtonPressedEvent& e)
+bool Pillar::OnMousePressed(MouseButtonPressedEvent& e)
 {
 	if (e.GetMouseButton() == Mouse::ButtonLeft)
 	{

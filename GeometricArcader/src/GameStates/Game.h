@@ -7,7 +7,9 @@
 #include "Player/Player.h"
 #include "Pickups/Pickup.h"
 #include "Pillar/Pillar.h"
+
 #include "UI/General/ProgressBar.h"
+#include "UI/General/ImageUI.h"
 
 class Game final : public IGameState
 {
@@ -39,16 +41,23 @@ private:
 	void SetupGameTimer();
 	void UpdateGameTimer(float deltaTime);
 
+	void SetupGravityTypeImage();
+
 	// Window Events //
 	bool OnWindowResize(Engine::WindowResizeEvent& e);
+	bool OnKeyReleased(Engine::KeyReleasedEvent& e);
 
 private:
 
-	Engine::Window& m_Window;
+	const Engine::Window& m_Window;
+
 	BorderCollision m_BorderCollision;
 	Player m_Player;
 
 	ProgressBar m_GameTimer;
+	ImageUI m_GravityTypeImage;
+	Engine::Ref<Engine::Texture2D> m_PullGravityTexture;
+	Engine::Ref<Engine::Texture2D> m_PushGravityTexture;
 
 	std::vector<Pickup> m_Pickups;
 	Pillar m_Pillar;

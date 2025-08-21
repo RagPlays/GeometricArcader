@@ -29,7 +29,13 @@ namespace Engine
 
 		enum class API
 		{
-			None = 0, OpenGL = 1 // Add more api's here
+			None = 0,
+			OpenGL = 1,
+			Vulkan = 2,
+			DX11 = 3,
+			DX12 = 4,
+			Metal // MacOS / iOS
+			// Add more api's here
 		};
 
 	public:

@@ -46,7 +46,7 @@ glm::vec3 FlyFishUtils::ToVec3(const TriVector& point)
 	return glm::vec3{ point.e032() * invW, point.e013() * invW, point.e021() * invW };
 }
 
-float FlyFishUtils::Distance(const TriVector& point0, const TriVector& point1)
+float FlyFishUtils::DistanceGLM(const TriVector& point0, const TriVector& point1)
 {
 	const glm::vec3 pos0{ ToVec3(point0) };
 	const glm::vec3 pos1{ ToVec3(point1) };
@@ -57,13 +57,37 @@ float FlyFishUtils::Distance(const TriVector& point0, const TriVector& point1)
 		!glm::all(glm::vec<3, bool>{ std::isfinite(pos1.x), std::isfinite(pos1.y), std::isfinite(pos1.z) })
 		)
 	{
+		ENGINE_WARN("FlyFishUtils::DistanceGLM - Asked distance when point was infinte");
 		return std::numeric_limits<float>::infinity();
 	}
 
 	return glm::distance(pos0, pos1);
 }
 
-glm::vec3 FlyFishUtils::GetDirection(const TriVector& from, const TriVector& to)
+float FlyFishUtils::DistanceGA(const TriVector& point0, const TriVector& point1)
+{
+	if (point0.e123() == 0.0f)
+	{
+		ENGINE_WARN("FlyFishUtils::DistanceGA - Asked distance when point was infinte");
+		return std::numeric_limits<float>::infinity();
+	}
+
+	return (point0 & point1).Norm();
+}
+
+// Positive means point lies in direction of plane normal.
+float FlyFishUtils::SignedDistanceGA(const Vector& plane, const TriVector& point)
+{
+	if (point.e123() == 0.0f || !(plane.e1() != 0.0f || plane.e2() != 0.0f || plane.e3() != 0.0f))
+	{
+		ENGINE_WARN("FlyFishUtils::SignedDistanceGA - Asked distance when plane or point was infinte");
+		return std::numeric_limits<float>::infinity();
+	}
+
+	return point.Normalized() & plane.Normalized();
+}
+
+glm::vec3 FlyFishUtils::GetDirectionGLM(const TriVector& from, const TriVector& to)
 {
 	ENGINE_ASSERT_MSG(from.e123() != 0.f && to.e123() != 0.f, "Cant find direction of infinite points");
 
@@ -74,9 +98,29 @@ glm::vec3 FlyFishUtils::GetDirection(const TriVector& from, const TriVector& to)
 	return dir;
 }
 
+glm::vec3 FlyFishUtils::GetDirectionGLM(const BiVector& directionLine)
+{
+	return glm::vec3{ directionLine.e23(), directionLine.e31(), directionLine.e12() };
+}
+
+glm::vec3 FlyFishUtils::GetDirectionGA(const TriVector& from, const TriVector& to)
+{
+	ENGINE_ASSERT_MSG(from.e123() != 0.f && to.e123() != 0.f, "Cant find direction of infinite points");
+
+	BiVector dirLine{ (from & to).Normalized() };
+	return glm::vec3{ dirLine.e23(), dirLine.e31(), dirLine.e12() };
+}
+
+BiVector FlyFishUtils::GetDirectionLineGA(const TriVector& from, const TriVector& to)
+{
+	ENGINE_ASSERT_MSG(from.e123() != 0.f && to.e123() != 0.f, "Cant find direction of infinite points");
+
+	return (from & to).Normalized();
+}
+
 Vector FlyFishUtils::GetDirectionPlane(const TriVector& from, const TriVector& to)
 {
-	const glm::vec3 dir{ GetDirection(from, to) };
+	const glm::vec3 dir{ GetDirectionGA(from, to) };
 	return Vector{ 0.0f, dir.x, dir.y, dir.z }; // Plane through origin with only a direction
 }
 
@@ -96,15 +140,68 @@ Motor FlyFishUtils::GetScaledTranslator(const Motor& translator, float scale)
 	return scaledTranslator;
 }
 
-Motor FlyFishUtils::GetTranslator(const glm::vec3& direction, float distance)
+Motor FlyFishUtils::GetTranslator(const glm::vec3& direction, float distance) // Only used to create a random start direction for player (that why glm::vec3)
 {
-	const float halfDist{ distance * 0.5f };
+	const glm::vec3 dirN{ glm::normalize(direction) };
+	const float d{ -distance * 0.5f };
+
 	return Motor
 	{
 		1.f,
-		direction.x * halfDist,
-		direction.y * halfDist,
-		direction.z * halfDist,
+		direction.x * d,
+		direction.y * d,
+		direction.z * d,
+		0.f,
+		0.f,
+		0.f,
+		0.f
+	};
+}
+
+Motor FlyFishUtils::GetTranslator(const BiVector& directionLine, float distance)
+{
+	const BiVector dirN{ directionLine.Normalized() };
+	const float d{ -distance * 0.5f };
+
+	return Motor
+	{
+		1.f,
+		dirN.e23() * d,
+		dirN.e31() * d,
+		dirN.e12() * d,
+		0.f,
+		0.f,
+		0.f,
+		0.f
+	};
+}
+
+Motor FlyFishUtils::GetTranslator(const Vector& directionPlane, float distance)
+{
+	const Vector dirN{ directionPlane.Normalized() };
+	const float d{ -distance * 0.5f };
+
+	return Motor
+	{
+		1.f,
+		dirN.e1() * d,
+		dirN.e2() * d,
+		dirN.e3() * d,
+		0.f,
+		0.f,
+		0.f,
+		0.f
+	};
+}
+
+Motor FlyFishUtils::GetTranslatorToPoint(const TriVector& point)
+{
+	return Motor
+	{
+		1.f,
+		point.e032() * -0.5f,
+		point.e013() * -0.5f,
+		point.e021() * -0.5f,
 		0.f,
 		0.f,
 		0.f,
@@ -122,41 +219,33 @@ void FlyFishUtils::Translate(TriVector& point, const Motor& translator)
 	point = (translator * point * ~translator).Grade3();
 }
 
-void FlyFishUtils::Translate(TriVector& point, const glm::vec3& direction, float distance)
-{
-	// Normalize the direction vector
-	const glm::vec3 dirN{ glm::normalize(direction) };
-
-	// Take half negative distance (because of sandwich)
-	const float d{ -distance * 0.5f };
-	const Motor translator { 1.f, d * dirN.x, d * dirN.y, d * dirN.z, 0.f, 0.f, 0.f, 0.f };
-
-	// Apply the Translation
-	point = (translator * point * ~translator).Grade3();
-}
-
 void FlyFishUtils::Translate(TriVector& point, const Vector& planeDirection, float distance)
 {
-	Translate(point, glm::vec3{ planeDirection.e1(), planeDirection.e2(), planeDirection.e3() }, distance);
+	// Get Translator in the direction of the plane over a distance
+	const Motor translator{ GetTranslator(planeDirection.Normalized(), distance) };
+
+	// Translate point with translator
+	Translate(point, translator);
 }
 
-void FlyFishUtils::Translate(TriVector& point, const BiVector& lineDirection, float distance)
+TriVector FlyFishUtils::GetTranslated(const TriVector& point, const Motor& translator)
 {
-	const Motor translator{ Motor::Translation(distance, lineDirection) };
-	point = (translator * point * ~translator).Grade3();
+	return (translator * point * ~translator).Grade3();
 }
 
-// returns signed distance from TriVector point to Vector plane.
-// Positive means point lies in direction of plane normal.
-float FlyFishUtils::SignedDistanceToPlane(const Vector& plane, const TriVector& point)
+void FlyFishUtils::RotateAroundPoint(TriVector& point, const TriVector& center, float angleDeg)
 {
-	const float pn{ plane.Norm() };			// sqrt(a^2 + b^2 + c^2)
-	const float pw{ point.Norm() };			// Scaler of e123 (usually 1.0f)
-	if (pn == 0.0f || pw == 0.0f) return 0.0f;
-	
-	const float normProduct{ pn * pw };
-	const float join{ plane & point };
-	return (normProduct == 1.f) ? join : (join / normProduct);
+	// Rotation motor around origin
+	const Motor rotator{ Motor::Rotation(angleDeg, FlyFishUtils::zAxis) };
+
+	// Translation motor to move center to origin
+	const Motor translator{ FlyFishUtils::GetTranslatorToPoint(center) };
+
+	// Compose motor: translate to center, rotate, back
+	const Motor translatedRotator{ translator  * rotator * ~translator };
+
+	// Apply sandwich product
+	point = (translatedRotator * point * ~translatedRotator).Grade3();
 }
 
 Vector FlyFishUtils::Projection(const Vector& plane, const Vector& referencePlane)
@@ -172,6 +261,11 @@ BiVector FlyFishUtils::Projection(const BiVector& line, const Vector& referenceP
 TriVector FlyFishUtils::Projection(const TriVector& point, const Vector& referencePlane)
 {
 	return ((point | referencePlane) * ~referencePlane).Grade3();
+}
+
+TriVector FlyFishUtils::Projection(const TriVector& point, const BiVector& referenceLine)
+{
+	return ((point | referenceLine) * ~referenceLine).Grade3();
 }
 
 Vector FlyFishUtils::Rejection(const Vector& plane, const Vector& referencePlane)
@@ -225,64 +319,33 @@ void FlyFishUtils::DrawFilledCircle(const TriVector& point, float radius)
 
 void FlyFishUtils::DrawLine(const BiVector& line, float length)
 {
-	// Direction (Euclidean part)
-	const glm::vec3 d{ line.e23(), line.e31(), line.e12() };
+	// Base point: projection of origin onto line
+	const TriVector origin{ 0.f, 0.f, 0.f, 1.f };
+	const TriVector projectionPoint{ Projection(origin, line) };
 
-	// Moment (vanishing part)
-	const glm::vec3 m{ line.e01(), line.e02(), line.e03() };
+	// Translate point over the line 
+	const float halfLength{ length * 0.5f };
+	const Motor translatorP1{ GetTranslator(line, halfLength) };
+	const Motor translatorP2{ GetTranslator(line, -halfLength) }; // Or -line, halfLength
+	
+	const TriVector linePoint0{ GetTranslated(projectionPoint, translatorP1) };
+	const TriVector linePoint1{ GetTranslated(projectionPoint, translatorP2) };
 
-	// Get one point on the line
-	const float denom{ glm::dot(d, d) };
-	const glm::vec3 p0{ glm::cross(d, m) / denom };
-
-	// Normalize direction
-	const glm::vec3 dirN{ glm::normalize(d) };
-	const float halfLength{ length * 0.5f }; // half length in each direction
-
-	// Get finite endpoints
-	const glm::vec3 p1
-	{
-		p0.x - dirN.x * halfLength,
-		p0.y - dirN.y * halfLength,
-		p0.z - dirN.z * halfLength
-	};
-
-	const glm::vec3 p2
-	{
-		p0.x + dirN.x * halfLength,
-		p0.y + dirN.y * halfLength,
-		p0.z + dirN.z * halfLength
-	};
-
-	// Draw the line
-	Engine::Renderer2D::DrawLine(p1, p2);
+	// Convert only once at the very end for rendering
+	Engine::Renderer2D::DrawLine(ToVec3(linePoint0), ToVec3(linePoint1));
 }
 
 void FlyFishUtils::DrawLine(const TriVector& point0, const TriVector& point1)
 {
-	const glm::vec3 pos0{ point0.e032(), point0.e013(), point0.e021() };
-	const glm::vec3 pos1{ point1.e032(), point1.e013(), point1.e021() };
-	Engine::Renderer2D::DrawLine(pos0, pos1);
-}
-
-void FlyFishUtils::DrawRect(const TriVector& pos, float width, float height)
-{
-	DrawRect(pos, glm::vec2{ width, height });
+	Engine::Renderer2D::DrawLine({ point0.e032(), point0.e013(), point0.e021() }, { point1.e032(), point1.e013(), point1.e021() });
 }
 
 void FlyFishUtils::DrawRect(const TriVector& point, const glm::vec2& size)
 {
-	const glm::vec3 pos{ point.e032(), point.e013(), point.e021() };
-	Engine::Renderer2D::DrawRect(pos, size);
-}
-
-void FlyFishUtils::DrawFillRect(const TriVector& pos, float width, float height)
-{
-	DrawFillRect(pos, glm::vec2{ width, height });
+	Engine::Renderer2D::DrawRect({ point.e032(), point.e013(), point.e021() }, size);
 }
 
 void FlyFishUtils::DrawFillRect(const TriVector& point, const glm::vec2& size)
 {
-	const glm::vec3 pos{ point.e032(), point.e013(), point.e021() };
-	Engine::Renderer2D::DrawFilledRect(pos, size);
+	Engine::Renderer2D::DrawFilledRect({ point.e032(), point.e013(), point.e021() }, size);
 }

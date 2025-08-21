@@ -26,11 +26,15 @@ public:
 
 	const TriVector& GetPosition() const;
 
+	void ToggleGravityType();
+	bool GetGravityType() const;
+
 private:
 
-	void UpdatePlayerGravity(Player& player, float deltaTime);
+	void UpdatePlayerRotation(Player& player, float deltaTime) const;
+	void UpdatePlayerGravity(Player& player, float deltaTime) const;
 
-	bool OnMousePressed(const Engine::MouseButtonPressedEvent& e);
+	bool OnMousePressed(Engine::MouseButtonPressedEvent& e);
 
 private:
 
@@ -39,9 +43,9 @@ private:
 	TriVector m_Position;
 	const glm::vec2 m_Size;
 
-
 	const float m_InfluenceRadius;
 	bool m_UsingGravity;
+	bool m_PullGravity;
 };
 
 #endif // !PILLAR_H

@@ -3,14 +3,7 @@
 
 #include <Engine.h>
 
-enum class UIAnchor
-{
-	Middle,
-	LeftBottom,
-	RightBottom,
-	LeftTop,
-	RightTop
-};
+#include "UI/General/UI.h"
 
 class ProgressBar final
 {

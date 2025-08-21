@@ -65,7 +65,7 @@ CollidingData BorderCollision::TryGetCollision(const TriVector& entityPoint, con
 		const bool horizontalPlane{ FlyFishUtils::IsHorizontalPlane(plane) };
 		const float offsetDistance{ horizontalPlane ? halfSize.y : halfSize.x };
 
-		if (float signedDistance{ FlyFishUtils::SignedDistanceToPlane(plane, entityPoint) }; signedDistance < offsetDistance - epsilon)
+		if (float signedDistance{ FlyFishUtils::SignedDistanceGA(plane, entityPoint) }; signedDistance < offsetDistance - epsilon)
 		{
 			return CollidingData{ signedDistance, &plane };
 		}

@@ -30,6 +30,7 @@ public:
 	// Getters / Setters //
 	const TriVector& GetPosition() const;
 	const TriVector Get2DPosition() const;
+	void SetPosition(const TriVector& point);
 	const glm::vec2& GetSize() const;
 	
 	void AddForce(const Motor& force);

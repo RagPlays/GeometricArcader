@@ -165,9 +165,9 @@ bool ProgressBar::IsFull() const
 
 void ProgressBar::UpdateRenderPosition()
 {
-    const glm::vec2 halfSize{ m_Size * 0.5f };
     const glm::vec2 winSize{ static_cast<float>(m_Window.GetWidth()), static_cast<float>(m_Window.GetHeight()) };
     const glm::vec2 winHalfSize{ winSize * 0.5f };
+    const glm::vec2 halfSize{ m_Size * 0.5f };
 
     switch (m_Anchor)
     {

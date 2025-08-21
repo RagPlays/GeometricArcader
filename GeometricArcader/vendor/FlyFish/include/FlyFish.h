@@ -702,7 +702,7 @@ public:
         const float d{ -translation / (2 * line.VNorm()) };
         return Motor{
             1,
-            d * line[0],
+            d * line[0], // Why use moment here?
             d * line[1],
             d * line[2],
             0,
@@ -716,9 +716,11 @@ public:
     {
         constexpr float DEG_TO_RAD{ std::numbers::pi_v<float> / 180.0f };
 
-        const float mult{ -sin(angle * DEG_TO_RAD * 0.5f) / line.Norm() };
+        const float halfAngle{ angle * DEG_TO_RAD * 0.5f };
+
+        const float mult{ -sin(halfAngle) / line.Norm() };
         return Motor{
-            cos(angle * DEG_TO_RAD * 0.5f),
+            cos(halfAngle),
             0,
             0,
             0,

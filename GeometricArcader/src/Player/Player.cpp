@@ -87,6 +87,11 @@ const TriVector Player::Get2DPosition() const
 	return TriVector{ m_Position.e032(), m_Position.e013(), 0.f, 1.f };
 }
 
+void Player::SetPosition(const TriVector& point)
+{
+	m_Position = point;
+}
+
 void Player::AddForce(const Motor& force)
 {
 	m_Velocity = force * m_Velocity;

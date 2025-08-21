@@ -2,6 +2,8 @@
 
 #include "Collision/Collision2D.h"
 
+#include "FlyFishTools/FlyFishUtils.h"
+
 using namespace Engine;
 
 Game::Game()
@@ -9,6 +11,9 @@ Game::Game()
 	, m_BorderCollision{ 0 }
 	, m_Player{}
 	, m_GameTimer{}
+	, m_GravityTypeImage{}
+	, m_PullGravityTexture{ Texture2D::Create(std::string(ASSET_PATH) + "pullGravity.png") }
+	, m_PushGravityTexture{ Texture2D::Create(std::string(ASSET_PATH) + "pushGravity.png") }
 	, m_Pickups{}
 	, m_Pillar{}
 	, m_Score{}
@@ -16,6 +21,7 @@ Game::Game()
 	ENGINE_TRACE("MainGame Started");
 
 	SetupGameTimer();
+	SetupGravityTypeImage();
 
 	m_Pickups.resize(8); // Initialize 8 pickups
 }
@@ -24,11 +30,14 @@ void Game::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher{ e };
 	dispatcher.Dispatch<WindowResizeEvent>(ENGINE_BIND_EVENT_FN(Game::OnWindowResize));
+	dispatcher.Dispatch<KeyReleasedEvent>(ENGINE_BIND_EVENT_FN(Game::OnKeyReleased));
 
 	m_BorderCollision.OnEvent(e);
 	m_Player.OnEvent(e);
 	m_Pillar.OnEvent(e);
+
 	m_GameTimer.OnEvent(e);
+	m_GravityTypeImage.OnEvent(e);
 }
 
 void Game::Update(float deltaTime)
@@ -42,12 +51,24 @@ void Game::Update(float deltaTime)
 
 void Game::Render() const
 {
+	/*const TriVector point0(-200.f, 500.f, 0.f);
+	const TriVector point1(500.f, -400.f, 0.f);
+	const BiVector line{ BiVector::LineFromPoints(point0.e032(), point0.e013(), point0.e021(), point1.e032(), point1.e013(), point1.e021()) };
+	Renderer2D::SetDrawColor(Color::magenta);
+	FlyFishUtils::DrawLine(line, FlyFishUtils::DistanceGA(point0, point1));
+
+	Renderer2D::SetDrawColor(Color::cyan);
+	FlyFishUtils::DrawFilledCircle(point0, 10.f);
+	FlyFishUtils::DrawFilledCircle(point1, 10.f);*/
+
+	//m_BorderCollision.Render();
 	m_Player.Render();
 	m_Pillar.Render();
 
 	RenderPickups();
 
 	m_GameTimer.Render();
+	m_GravityTypeImage.Render();
 }
 
 bool Game::IsComplete() const
@@ -115,9 +136,30 @@ void Game::UpdateGameTimer(float deltaTime)
 	}
 }
 
+void Game::SetupGravityTypeImage()
+{
+	m_GravityTypeImage.SetTexture(m_Pillar.GetGravityType() ? m_PullGravityTexture : m_PushGravityTexture);
+	m_GravityTypeImage.SetAnchor(UIAnchor::LeftBottom);
+	m_GravityTypeImage.SetMargin({ 30.f + 75.f + 30.f, 30.f + 50.f + 30.f });
+	m_GravityTypeImage.SetSize({ 75.f, 50.f });
+}
+
 bool Game::OnWindowResize(WindowResizeEvent& e)
 {
 	SetupGameTimer();
+
+	return false;
+}
+
+bool Game::OnKeyReleased(KeyReleasedEvent& e)
+{
+	const KeyCode key{ e.GetKeyCode() };
+	if (key == Key::Left || key == Key::A ||
+		key == Key::Right || key == Key::D)
+	{
+		m_Pillar.ToggleGravityType();
+		m_GravityTypeImage.SetTexture(m_Pillar.GetGravityType() ? m_PullGravityTexture : m_PushGravityTexture);
+	}
 
 	return false;
 }
