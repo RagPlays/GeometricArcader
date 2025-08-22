@@ -15,6 +15,7 @@ Game::Game()
 	, m_PullGravityTexture{ Texture2D::Create(std::string(ASSET_PATH) + "pullGravity.png") }
 	, m_PushGravityTexture{ Texture2D::Create(std::string(ASSET_PATH) + "pushGravity.png") }
 	, m_Pickups{}
+	, m_UltraPickup{}
 	, m_Pillar{}
 	, m_Score{}
 {
@@ -44,6 +45,7 @@ void Game::Update(float deltaTime)
 {
 	m_Player.Update(m_BorderCollision, deltaTime);
 	m_Pillar.Update(m_Player, deltaTime);
+	m_UltraPickup.Update(deltaTime);
 
 	UpdatePickups();
 	UpdateGameTimer(deltaTime);
@@ -64,6 +66,7 @@ void Game::Render() const
 	//m_BorderCollision.Render();
 	m_Player.Render();
 	m_Pillar.Render();
+	m_UltraPickup.Render();
 
 	RenderPickups();
 
@@ -100,6 +103,13 @@ void Game::UpdatePickups()
 			pickup.RandomizePosition();
 			m_Player.AddEnergy(energyGainOnPickup);
 		}
+	}
+
+	if (Collision2D::HasCollisionGEOA(m_UltraPickup.GetPosition(), m_UltraPickup.GetSize(), playerPos, playerSize))
+	{
+		m_Score += 3;
+		m_UltraPickup.RandomizePosition();
+		m_Player.AddEnergy(energyGainOnPickup * 2);
 	}
 }
 

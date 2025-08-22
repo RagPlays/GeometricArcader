@@ -35,6 +35,8 @@ public:
     static glm::vec2 ToVec2(const TriVector& point);
 	static glm::vec3 ToVec3(const TriVector& point);
 
+    static TriVector GetPoint2D(const TriVector& point);
+
 	static float DistanceGLM(const TriVector& point0, const TriVector& point1);
     static float DistanceGA(const TriVector& point0, const TriVector& point1);
     static float SignedDistanceGA(const Vector& plane, const TriVector& point);
@@ -52,15 +54,14 @@ public:
     static Motor GetTranslator(const Vector& directionPlane, float distance);
     static Motor GetTranslatorToPoint(const TriVector& point);
 
-    // Plane Translation
     static void Translate(Vector& plane, float distance);
-
-    // Point Translation
     static void Translate(TriVector& point, const Motor& translator);
     static void Translate(TriVector& point, const Vector& planeDirection, float distance);
     static TriVector GetTranslated(const TriVector& point, const Motor& translator);
 
-    // Point Rotation
+    static float GetAngleBetweenLinesGA(const BiVector& line0, const BiVector& line1);
+
+    static void Rotate(TriVector& point, const Motor& rotator);
     static void RotateAroundPoint(TriVector& point, const TriVector& center, float angleDeg);
 
     // Projections Proj(x)m = (x | m) * ~m -> (x dot m) gep inverse(m)
@@ -93,6 +94,7 @@ public:
 
     static void DrawRect(const TriVector& point, const glm::vec2& size);
     static void DrawFillRect(const TriVector& point, const glm::vec2& size);
+    static void DrawFillRect(const TriVector& point, const glm::vec2& size, float angleRad);
 
 };
 

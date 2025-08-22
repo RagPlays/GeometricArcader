@@ -74,17 +74,17 @@ void Pillar::UpdatePlayerRotation(Player& player, float deltaTime) const
 	// Angular speed in degrees per second
 	constexpr float angularSpeed{ 90.0f }; // one quarter turn per second
 
-	TriVector playerPos{ player.Get2DPosition() };
-	if (FlyFishUtils::DistanceGA(m_Position, playerPos) > m_InfluenceRadius) return;
+	TriVector playerPos2D{ FlyFishUtils::GetPoint2D(player.GetPosition()) };
+	if (FlyFishUtils::DistanceGA(m_Position, playerPos2D) > m_InfluenceRadius) return;
 
 	// Angle to rotate this frame
 	const float deltaAngle{ angularSpeed * deltaTime };
 
 	// Rotate around pillar center (m_Position)
-	FlyFishUtils::RotateAroundPoint(playerPos, m_Position, deltaAngle);
+	FlyFishUtils::RotateAroundPoint(playerPos2D, m_Position, deltaAngle);
 
 	// Update player position
-	player.SetPosition(playerPos);
+	player.SetPosition(playerPos2D);
 }
 
 void Pillar::UpdatePlayerGravity(Player& player, float deltaTime) const
@@ -92,8 +92,8 @@ void Pillar::UpdatePlayerGravity(Player& player, float deltaTime) const
 	constexpr float gravityStrength{ 80000000.f };	// Gravity constant
 	constexpr float maxForce{ 5000.f };				// clamp to avoid insane speeds
 
-	const TriVector playerPos{ player.Get2DPosition() };
-	const float dist{ FlyFishUtils::DistanceGA(m_Position, playerPos) };
+	TriVector playerPos2D{ FlyFishUtils::GetPoint2D(player.GetPosition()) };
+	const float dist{ FlyFishUtils::DistanceGA(m_Position, playerPos2D) };
 	if (dist > m_InfluenceRadius) return;
 
 	// Newtonian gravity: F = G / r^2
@@ -104,8 +104,8 @@ void Pillar::UpdatePlayerGravity(Player& player, float deltaTime) const
 	const BiVector dirLine
 	{
 		m_PullGravity ?
-		FlyFishUtils::GetDirectionLineGA(playerPos, m_Position) :
-		FlyFishUtils::GetDirectionLineGA(m_Position, playerPos)
+		FlyFishUtils::GetDirectionLineGA(playerPos2D, m_Position) :
+		FlyFishUtils::GetDirectionLineGA(m_Position, playerPos2D)
 	};
 	player.AddForce(FlyFishUtils::GetTranslator(dirLine, deltaStrength));
 }

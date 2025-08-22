@@ -47,10 +47,9 @@ void Player::Update(const BorderCollision& coll, float deltaTime)
 
 void Player::Render() const
 {
-	const TriVector position2D{ Get2DPosition() };
-	
+	const TriVector position2D{ FlyFishUtils::GetPoint2D(m_Position) };
 	Renderer2D::SetDrawColor(m_EnergyRatioColor);
-	FlyFishUtils::DrawFillRect(position2D, glm::vec2{m_Size.x - 4.f, m_Size.y - 4.f});
+	FlyFishUtils::DrawFillRect(position2D, glm::vec2{ m_Size.x - 4.f, m_Size.y - 4.f });
 	Renderer2D::SetDrawColor(Color::white);
 	FlyFishUtils::DrawFillRect(position2D, m_Size);
 
@@ -80,11 +79,6 @@ bool Player::IsDead() const
 const TriVector& Player::GetPosition() const
 {
 	return m_Position;
-}
-
-const TriVector Player::Get2DPosition() const
-{
-	return TriVector{ m_Position.e032(), m_Position.e013(), 0.f, 1.f };
 }
 
 void Player::SetPosition(const TriVector& point)

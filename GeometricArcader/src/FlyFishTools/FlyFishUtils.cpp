@@ -46,6 +46,11 @@ glm::vec3 FlyFishUtils::ToVec3(const TriVector& point)
 	return glm::vec3{ point.e032() * invW, point.e013() * invW, point.e021() * invW };
 }
 
+TriVector FlyFishUtils::GetPoint2D(const TriVector& point)
+{
+	return TriVector{ point.e032(), point.e013() , 0.f, 1.f };
+}
+
 float FlyFishUtils::DistanceGLM(const TriVector& point0, const TriVector& point1)
 {
 	const glm::vec3 pos0{ ToVec3(point0) };
@@ -233,6 +238,24 @@ TriVector FlyFishUtils::GetTranslated(const TriVector& point, const Motor& trans
 	return (translator * point * ~translator).Grade3();
 }
 
+float FlyFishUtils::GetAngleBetweenLinesGA(const BiVector& line0, const BiVector& line1)
+{
+	// L . K = - |L| |K| cos(angle)
+	// angle = acos(-(L . K) / (|L| |K|))
+	// since both lines are normalized |L| = |K| = 1
+	// => angle = acos(- L . K)
+
+	const BiVector line0N{ line0.Normalized() };
+	const BiVector line1N{ line1.Normalized() };
+	const float dotProduct{ line0N | line1N };
+	return std::acos(-dotProduct);
+}
+
+void FlyFishUtils::Rotate(TriVector& point, const Motor& rotator)
+{
+	point = (rotator * point * ~rotator).Grade3();
+}
+
 void FlyFishUtils::RotateAroundPoint(TriVector& point, const TriVector& center, float angleDeg)
 {
 	// Rotation motor around origin
@@ -348,4 +371,9 @@ void FlyFishUtils::DrawRect(const TriVector& point, const glm::vec2& size)
 void FlyFishUtils::DrawFillRect(const TriVector& point, const glm::vec2& size)
 {
 	Engine::Renderer2D::DrawFilledRect({ point.e032(), point.e013(), point.e021() }, size);
+}
+
+void FlyFishUtils::DrawFillRect(const TriVector& point, const glm::vec2& size, float angleRad)
+{
+	Engine::Renderer2D::DrawFilledRect({ point.e032(), point.e013(), point.e021() }, size, angleRad);
 }

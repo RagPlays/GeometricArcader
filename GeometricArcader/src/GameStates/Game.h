@@ -6,6 +6,7 @@
 #include "Collision/BorderCollision.h"
 #include "Player/Player.h"
 #include "Pickups/Pickup.h"
+#include "Pickups/UltraPickup.h"
 #include "Pillar/Pillar.h"
 
 #include "UI/General/ProgressBar.h"
@@ -60,6 +61,7 @@ private:
 	Engine::Ref<Engine::Texture2D> m_PushGravityTexture;
 
 	std::vector<Pickup> m_Pickups;
+	UltraPickup m_UltraPickup;
 	Pillar m_Pillar;
 
 	uint32_t m_Score;
