@@ -36,7 +36,7 @@ void EndScreen::Render() const
 
 	// parameters
 	constexpr int cols{ 8 };         // quads per row
-	constexpr float quadSize{ 25.f }; // size of quad
+	constexpr float quadSize{ 30.f }; // size of quad
 	constexpr float halfQuadSize{ quadSize * 0.5f };
 	constexpr float gap{ 20.f };        // spacing between quads
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.5...4.1)
 project(FlyFish LANGUAGES CXX)
 
 # 1) Build the FlyFish library

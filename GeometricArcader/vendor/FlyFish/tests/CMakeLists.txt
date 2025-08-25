@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.5...4.1)
 project(FlyFish_Tests LANGUAGES CXX)
 
 # 1) enable C++23 for tests (match your library)

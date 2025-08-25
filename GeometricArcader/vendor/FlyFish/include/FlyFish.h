@@ -699,6 +699,9 @@ public:
 
     [[nodiscard]] static Motor Translation(float translation, const BiVector& line)
     {
+        // Rt (translator) = 1 - 1/2 t (-e0)
+        // Meaning - 1/2 t => negative half distance over the direction
+        // t = -2(m0 - n0)n^
         const float d{ -translation / (2 * line.VNorm()) };
         return Motor{
             1,
@@ -715,10 +718,11 @@ public:
     [[nodiscard]] static Motor Rotation(float angle, const BiVector& line)
     {
         constexpr float DEG_TO_RAD{ std::numbers::pi_v<float> / 180.0f };
-
         const float halfAngle{ angle * DEG_TO_RAD * 0.5f };
-
         const float mult{ -sin(halfAngle) / line.Norm() };
+
+        // R (rotator) = cos(angle/2) - sin(angle/2) over origin line.
+
         return Motor{
             cos(halfAngle),
             0,

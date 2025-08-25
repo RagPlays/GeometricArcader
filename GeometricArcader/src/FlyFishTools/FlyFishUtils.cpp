@@ -150,6 +150,8 @@ Motor FlyFishUtils::GetTranslator(const glm::vec3& direction, float distance) //
 	const glm::vec3 dirN{ glm::normalize(direction) };
 	const float d{ -distance * 0.5f };
 
+	// Rt (translator) = 1 - 1/2 t (-e0)
+	// Meaning - 1/2 t => negative half distance over the direction
 	return Motor
 	{
 		1.f,
@@ -168,6 +170,8 @@ Motor FlyFishUtils::GetTranslator(const BiVector& directionLine, float distance)
 	const BiVector dirN{ directionLine.Normalized() };
 	const float d{ -distance * 0.5f };
 
+	// Rt (translator) = 1 - 1/2 t (-e0)
+	// Meaning - 1/2 t => negative half distance over the direction
 	return Motor
 	{
 		1.f,
@@ -186,6 +190,8 @@ Motor FlyFishUtils::GetTranslator(const Vector& directionPlane, float distance)
 	const Vector dirN{ directionPlane.Normalized() };
 	const float d{ -distance * 0.5f };
 
+	// Rt (translator) = 1 - 1/2 t (-e0)
+	// Meaning - 1/2 t => negative half distance over the direction
 	return Motor
 	{
 		1.f,
@@ -201,6 +207,8 @@ Motor FlyFishUtils::GetTranslator(const Vector& directionPlane, float distance)
 
 Motor FlyFishUtils::GetTranslatorToPoint(const TriVector& point)
 {
+	// Rt (translator) = 1 - 1/2 t (-e0)
+	// Meaning - 1/2 t => negative half distance over the direction
 	return Motor
 	{
 		1.f,
@@ -259,13 +267,13 @@ void FlyFishUtils::Rotate(TriVector& point, const Motor& rotator)
 void FlyFishUtils::RotateAroundPoint(TriVector& point, const TriVector& center, float angleDeg)
 {
 	// Rotation motor around origin
-	const Motor rotator{ Motor::Rotation(angleDeg, FlyFishUtils::zAxis) };
+	const Motor rotator{ Motor::Rotation(angleDeg, FlyFishUtils::zAxis) }; // I0 (Rotation line through Origin)
 
 	// Translation motor to move center to origin
-	const Motor translator{ FlyFishUtils::GetTranslatorToPoint(center) };
+	const Motor translator{ FlyFishUtils::GetTranslatorToPoint(center) }; // Tt (Translation)
 
 	// Compose motor: translate to center, rotate, back
-	const Motor translatedRotator{ translator  * rotator * ~translator };
+	const Motor translatedRotator{ translator  * rotator * ~translator }; // I (translated rotation line)
 
 	// Apply sandwich product
 	point = (translatedRotator * point * ~translatedRotator).Grade3();
