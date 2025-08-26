@@ -24,7 +24,7 @@ Player::Player()
 	m_EnergyBar.SetValue(m_Position.e021());
 	m_EnergyBar.SetMaxValue(m_MaxEnergy);
 
-	m_Velocity = FlyFishUtils::GetTranslator(glm::vec3{ Random::Direction2D(), 0.f}, m_StartSpeed);
+	m_Velocity = FlyFishUtils::GetTranslator(glm::vec3{ Random::Direction2D(), 0.f }, m_StartSpeed);
 }
 
 void Player::OnEvent(Event& e)
@@ -126,7 +126,7 @@ void Player::UpdateVelocity(float deltaTime)
 
 	// Scale With VNorm to get "forward", then Scale with the wanted speed gain and deltaTime
 	const float totalScale{ (1.f / vnorm) * accSign * (m_Acceleration * 0.5f) * deltaTime };
-	Motor accMotor{ FlyFishUtils::GetScaledTranslator(m_Velocity, totalScale) };
+	const Motor accMotor{ FlyFishUtils::GetScaledTranslator(m_Velocity, totalScale) };
 
 	// Accelerate / Decelerate the velocity
 	AddForce(accMotor);

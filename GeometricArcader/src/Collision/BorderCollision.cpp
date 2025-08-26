@@ -10,10 +10,10 @@ BorderCollision::BorderCollision(uint32_t borderOffset)
 	, m_OffsetY{}
 	, m_BorderPlanes
 	{
-		Vector{ /*e0*/0.f, /*e1*/1.0f,  /*e2*/0.0f,  /*e3*/0.0f },	// plane normal -> right
-		Vector{ /*e0*/0.f, /*e1*/-1.0f, /*e2*/0.0f,  /*e3*/0.0f },	// plane normal -> left
-		Vector{ /*e0*/0.f, /*e1*/0.0f,  /*e2*/1.0f,  /*e3*/0.0f },	// plane normal -> top
-		Vector{ /*e0*/0.f, /*e1*/0.0f,  /*e2*/-1.0f, /*e3*/0.0f }	// plane normal -> down
+		Vector{ /*e0*/0.f, /*e1*/1.0f,  /*e2*/0.0f,  /*e3*/0.0f },	// left plane normal -> right
+		Vector{ /*e0*/0.f, /*e1*/-1.0f, /*e2*/0.0f,  /*e3*/0.0f },	// right plane normal -> left
+		Vector{ /*e0*/0.f, /*e1*/0.0f,  /*e2*/1.0f,  /*e3*/0.0f },	// bottom plane normal -> top
+		Vector{ /*e0*/0.f, /*e1*/0.0f,  /*e2*/-1.0f, /*e3*/0.0f }	// top plane normal -> down
 	}
 {
 	const Window& window{ Application::Get().GetWindow() };

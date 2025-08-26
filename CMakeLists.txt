@@ -29,10 +29,14 @@ foreach(config DEBUG RELEASE DIST)
         "${OUTPUT_OBJ}/${config}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 endforeach()
 
-# For MSVC users, enable UTF-8 source encoding so spdlog’s fmt bundle is happy
 if (MSVC)
+  # Force static runtime linking
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  
+  # Enable UTF-8 source encoding so spdlog’s fmt bundle is happy
   add_compile_options(/utf-8)
-  add_compile_options(/MP) # multithreaded compilation
+  # multithreaded compilation
+  add_compile_options(/MP)
 endif()
 
 # Engine library

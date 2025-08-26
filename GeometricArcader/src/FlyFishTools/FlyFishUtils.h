@@ -54,7 +54,6 @@ public:
     static Motor GetTranslator(const Vector& directionPlane, float distance);
     static Motor GetTranslatorToPoint(const TriVector& point);
 
-    static void Translate(Vector& plane, float distance);
     static void Translate(TriVector& point, const Motor& translator);
     static void Translate(TriVector& point, const Vector& planeDirection, float distance);
     static TriVector GetTranslated(const TriVector& point, const Motor& translator);

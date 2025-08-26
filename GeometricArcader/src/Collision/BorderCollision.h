@@ -5,7 +5,6 @@
 
 #include "FlyFish.h"
 
-
 struct CollidingData
 {
 	const float SignedDistance{ 0.f }; // Signed distance to the plane

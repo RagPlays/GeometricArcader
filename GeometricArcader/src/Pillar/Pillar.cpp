@@ -92,7 +92,7 @@ void Pillar::UpdatePlayerGravity(Player& player, float deltaTime) const
 	constexpr float gravityStrength{ 80000000.f };	// Gravity constant
 	constexpr float maxForce{ 5000.f };				// clamp to avoid insane speeds
 
-	TriVector playerPos2D{ FlyFishUtils::GetPoint2D(player.GetPosition()) };
+	const TriVector playerPos2D{ FlyFishUtils::GetPoint2D(player.GetPosition()) };
 	const float dist{ FlyFishUtils::DistanceGA(m_Position, playerPos2D) };
 	if (dist > m_InfluenceRadius) return;
 

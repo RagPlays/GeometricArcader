@@ -222,11 +222,6 @@ Motor FlyFishUtils::GetTranslatorToPoint(const TriVector& point)
 	};
 }
 
-void FlyFishUtils::Translate(Vector& plane, float distance)
-{
-	plane.e0() -= distance; // (-) because n = n^ + n0(-e0) -> (-e0)
-}
-
 void FlyFishUtils::Translate(TriVector& point, const Motor& translator)
 {
 	point = (translator * point * ~translator).Grade3();

@@ -32,7 +32,7 @@ target_include_directories(Engine
 # Compiler definitions
 target_compile_definitions(Engine
     PRIVATE
-        _CRT_SECURE_NO_WARNINGS
+        _CRT_SECURE_NO_WARNINGS #MSVC specific
         GLFW_INCLUDE_NONE
         ASSET_PATH="assets/engine/"
 )
