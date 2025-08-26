@@ -4,6 +4,9 @@
 #ifndef ENGINE_DIST
 #define ENGINE_LOGGING 1
 #define ENGINE_PROFILE 0
+#else
+#define ENGINE_LOGGING 0
+#define ENGINE_PROFILE 0
 #endif
 
 #define ENGINE_IMGUI 1

@@ -3,6 +3,8 @@
 
 #if ENGINE_LOGGING
 
+#include "Engine/Core/Base.h"
+
 #include <memory>
 
 // This ignores all warnings raised inside External headers
@@ -10,8 +12,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 #pragma warning(pop)
-
-#include "Engine/Core/Base.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4251)

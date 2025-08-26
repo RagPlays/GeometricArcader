@@ -1,10 +1,10 @@
 ﻿#include "MainLayer.h"
 
-#include <imgui/imgui.h>
-
 #include "GameStates/Game.h"
 #include "GameStates/StartScreen.h"
 #include "GameStates/EndScreen.h"
+
+#include <imgui.h>
 
 using namespace Engine;
 

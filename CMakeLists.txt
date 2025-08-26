@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5...4.1)
 
-# Tell VS that our solution has three configs: Debug, Release, and Dist
+# Three configs: Debug, Release, and Dist
 set(CMAKE_CONFIGURATION_TYPES
     "Debug;Release;Dist"
     CACHE STRING "Configs for all generators" FORCE
@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Multi-config generators (Visual Studio): define output dirs per config
+# Define output dirs per config
 set(OUTPUT_BASE "${CMAKE_SOURCE_DIR}/bin")
 set(OUTPUT_OBJ "${CMAKE_SOURCE_DIR}/bin-int")
 
@@ -32,7 +32,7 @@ endforeach()
 # For MSVC users, enable UTF-8 source encoding so spdlog’s fmt bundle is happy
 if (MSVC)
   add_compile_options(/utf-8)
-  add_compile_options(/MP)
+  add_compile_options(/MP) # multithreaded compilation
 endif()
 
 # Engine library
@@ -40,5 +40,3 @@ add_subdirectory(Engine)
 
 # Executables
 add_subdirectory(GeometricArcader)
-add_subdirectory(Sandbox)
-add_subdirectory(CustomFontRenderer)
