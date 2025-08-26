@@ -131,7 +131,7 @@ void Player::UpdateVelocity(float deltaTime)
 	// Accelerate / Decelerate the velocity
 	AddForce(accMotor);
 
-	// Enforce Minimum Speed
+	// Enforce minimum speed
 	const float newSpeed{ GetSpeed() };
 	if (newSpeed < m_MinimumSpeed)
 	{
