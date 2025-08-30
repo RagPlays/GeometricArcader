@@ -63,7 +63,7 @@ void UltraPickup::RandomizePosition()
 
 	m_Position = TriVector{ randomPosition.x, randomPosition.y, -1.f };
 
-	const float offsetDist{ m_Size.x * 0.4f };
+	const float offsetDist{ m_Size.x * 0.5f };
 	m_RotatePositions =
 	{
 		TriVector{ m_Position.e032() + offsetDist, m_Position.e013(), m_Position.e021() },

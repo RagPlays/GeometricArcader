@@ -37,6 +37,9 @@ if (MSVC)
   add_compile_options(/utf-8)
   # multithreaded compilation
   add_compile_options(/MP)
+
+  # Turn off permissiveness (enforce standard conformance)
+  add_compile_options(/permissive-)
 endif()
 
 # Engine library
